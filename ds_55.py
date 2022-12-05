@@ -325,33 +325,34 @@ async def print_func(message: types.Message):
                 text=f'{mention_rep} ты так-то человечек хороший. Все это уже поняли. Может про DS что нить накидаешь?',
                 parse_mode="MarkDown")
         elif user_id != rep_id:
-            user_rate_cur = cur.execute('SELECT rep FROM Users WHERE id=' + str(rep_id)).fetchone()
+            user_rate_cur = cur.execute('SELECT rep FROM Users WHERE id == ?', (rep_id,)).fetchone()
+            # Если нет юзера в базе, то добавляем его туда сразу с рейтингом 1
             if not user_rate_cur:
-                await message.answer(
-                    text=f'{rep_name}, к сожалению, я тебя знаю и не могу повысить твою репутацию. '
-                         f'Напиши /start, чтобы это исправить',
-                    parse_mode="MarkDown"
-                )
-            elif user_rate_cur[0] >= 0:
+                cur.execute('INSERT INTO Users (id, rep) VALUES(?, ?)', (rep_id, 1))
+                bd.commit()
+                user_rate_fin = 1
+            # если юзер есть, то обновляем его данные
+            else:
                 user_rate_fin = user_rate_cur[0] + 1
-                funfact = ['приятный человек и мудрый собеседник.',
-                           'всегда сумеет найти нужные слова.',
-                           'человек с большой Буквы.',
-                           'ты просто наиприятнейшая личность в контексте DS',
-                           'цветок добра',
-                           'расшарил(а) мудрость',
-                           'авторитетен и ТОЧКА',
-                           'задаёт хороший тон',
-                           'умеет делать красиво',
-                           'от души душевно в душу - часто слышишь?']
-                forfun = random.choice(funfact)
-                await message.answer(
-                    text=f' {mention_rep} {forfun}.\n+1 в твою личную коллекцию благодарностей.'
-                         f'\nУровень коллективной благодарности: {user_rate_fin} ⭐️',
-                    parse_mode="MarkDown"
-                )
                 cur.execute('UPDATE Users SET rep == ? WHERE id == ?', (user_rate_fin, rep_id))
                 bd.commit()
+
+            funfact = ['приятный человек и мудрый собеседник.',
+                       'всегда сумеет найти нужные слова.',
+                       'человек с большой Буквы.',
+                       'ты просто наиприятнейшая личность в контексте DS',
+                       'цветок добра',
+                       'расшарил(а) мудрость',
+                       'авторитетен и ТОЧКА',
+                       'задаёт хороший тон',
+                       'умеет делать красиво',
+                       'от души душевно в душу - часто слышишь?']
+            forfun = random.choice(funfact)
+            await message.answer(
+                text=f' {mention_rep} {forfun}.\n+1 в твою личную коллекцию благодарностей.'
+                     f'\nУровень коллективной благодарности: {user_rate_fin} ⭐️',
+                parse_mode="MarkDown"
+            )
     elif message_lower.find('профил') > -1:
         mycheck = cur.execute('SELECT * FROM Users WHERE id=' + str(rep_id)).fetchone()
         if not mycheck[4]:
@@ -537,16 +538,17 @@ async def menu(call):
 # @dp.callback_query_handler(text='addprofile')
 # async def addprofile(call):
 
+# Эта функция работает при каждом новом сообщении, а это прямо совсем не хорошо
 
-@dp.message_handler()
-async def check_user(message: types.Message):
-    # chat_name = message.from_user.first_name
-    user_id = message.from_user.id
-    fellows = cur.execute('SELECT id FROM Users').fetchall()
-    fellows_list = [x[0] for x in fellows]
-    if user_id not in fellows_list:
-        cur.execute('INSERT INTO Users(id, rep) VALUES(?, ?)', (user_id, 0))
-        bd.commit()
+# @dp.message_handler()
+# async def check_user(message: types.Message):
+#     # chat_name = message.from_user.first_name
+#     user_id = message.from_user.id
+#     fellows = cur.execute('SELECT id FROM Users').fetchall()
+#     fellows_list = [x[0] for x in fellows]
+#     if user_id not in fellows_list:
+#         cur.execute('INSERT INTO Users(id, rep) VALUES(?, ?)', (user_id, 0))
+#         bd.commit()
 
 
 # Техническая часть, чтобы бот работал не уходил в игнор от большого количества запросов.
