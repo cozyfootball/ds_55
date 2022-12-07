@@ -16,7 +16,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 
 # Базовые настройки для соединения с созданным ботом
-API_TOKEN = 'TOKEN'
+API_TOKEN = 'TokeN'
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 # Подключаемся/создаем базу данных
@@ -103,7 +103,7 @@ async def first_step(message: types.Message):
         # сценарий если участвовал
         if user_id in victory_id_list:
             good_person = f'Твой профиль заполнен и ты прошёл блиц. Давай обнимися, что ли? Золотый ты человечек'
-            await bot.send_message(chat_id=good_person, text=welcome, parse_mode="MarkDown")
+            await bot.send_message(chat_id=user_id, text=good_person, parse_mode="MarkDown")
         # сценарий если не участвовал
         elif user_id not in victory_id_list:
             vitctorina_user = f'Твой профиль заполнен, но ты не прошёл викторину. ' \
@@ -422,6 +422,7 @@ async def print_func(message: types.Message):
 async def bd_info(message: types.Message):
     user_id = message.from_user.id
     base_count = cur.execute('SELECT id FROM Users').fetchall()
+    blic_count = cur.execute('SELECT id FROM Blic').fetchall()
     base_info = cur.execute('SELECT age FROM Users WHERE age > 0').fetchall()
     base_info_m = cur.execute('SELECT age FROM Users WHERE age > 0 AND sex == "man"').fetchall()
     base_info_w = cur.execute('SELECT age FROM Users WHERE age > 0 AND sex == "woman"').fetchall()
@@ -433,18 +434,19 @@ async def bd_info(message: types.Message):
     user_age_avg_w = sum(base_list_w) / len(base_list_w)
     mess = (f'С вашего позволения, я поделюсь *аналитикой* по чату:\n'
             f'На текущую секундочку в чате {len(base_list)} *настоящих мастеров DS*.\n'
-            f'Средний возраст *элиты* чата *{round(user_age_avg, 2)}\n'
-            f'🗿 - {round(user_age_avg_m, 2)}         👩🏻‍🦰 - {round(user_age_avg_w, 2)}*\n'
-            f'Внимание! Я вижу в чате еще {len(base_count)-len(base_list)} живых юзеров.*\n'
-            f'Напишите /start в отдельном чате со мной и заполните свои профили. Давайте еще лучше узнаем друг друга. Всем добра')
+            f'Средний возраст *элиты* чата {round(user_age_avg, 2)}\n'
+            f'*🗿 - {round(user_age_avg_m, 2)}         👩🏻‍🦰 - {round(user_age_avg_w, 2)}*\n'
+            f'Внимание! Я вижу в чате еще *{len(base_count)-len(base_list)} живых юзеров*.\n'
+            f'*Напишите* /start в отдельном чате со мной и заполните свои профили. Давайте еще лучше узнаем друг друга.\n'
+            f'*А еще всего {len(blic_count)} прошли блиц. Не бойтесь, там не сложно*')
     await message.answer(text=mess, parse_mode="MarkDown")
     sleep(3)
     if len(base_list_w) > len(base_list_m):
-        dolya = round(len(base_list_w)/len(base_list),3)
-        await message.answer(text=f'Гинекократия наметилась.\nДевушки владеют контрольным пакетом чата\nИх доля *{str(dolya+"%")}', parse_mode="MarkDown")
+        dolya = round(len(base_list_w)/len(base_list)*100, 3)
+        await message.answer(text=f'Гинекократия наметилась.\nДевушки владеют контрольным пакетом чата\nИх доля *{dolya}%*', parse_mode="MarkDown")
     elif len(base_list_w) < len(base_list_m):
-        dolya = round(len(base_list_m) / len(base_list), 3)
-        await message.answer(text=f'Мужское большинство и в ДСе?\nКонтрольный пакет пареньков *{str(dolya+"%")}*', parse_mode="MarkDown")
+        dolya = round(len(base_list_m) / len(base_list)*100, 3)
+        await message.answer(text=f'Мужское большинство и в ДСе?\nКонтрольный пакет пареньков *{dolya}%*', parse_mode="MarkDown")
     elif len(base_list_w) == len(base_list_m):
         await message.answer(
             text=f'Я люблю когда так бывает. Объявляю половое равенство в чате', parse_mode="MarkDown")
@@ -452,7 +454,6 @@ async def bd_info(message: types.Message):
 
 @dp.message_handler(commands=['whyds'])
 async def why_ds(message: types.Message):
-    mess_id = message.id
     base_whyds = cur.execute('SELECT id, chat_name, whyds FROM Users WHERE whyds NOT NULL').fetchall()
     one_ds = random.choice(base_whyds)
     rand_emo = ['🤌', '✊🏻', '💪🏻', '🫡']
@@ -462,7 +463,7 @@ async def why_ds(message: types.Message):
             f'Когда дедлайн был близок и времени уже не оставалось, я дал слабину.\n'
             f'Подумал, что это не моё, хотел вернуться на домашний диван.\n'
             f'{mention} перубедил(а) меня своей мудростью.\n'
-            f'Мудрость *{one_ds[2]}* {random.choice(rand_emo)}')
+            f'Мудрость: *{one_ds[2]}* {random.choice(rand_emo)}')
     await message.answer(
         text=mess, parse_mode="MarkDown")
     await message.delete()
@@ -533,7 +534,7 @@ async def my_blic(call):
     button11 = InlineKeyboardButton(text='Пройти БЛИЦ', callback_data='addvictory')
     if user_id in mypvic_list:
         mypvic = cur.execute('SELECT * FROM Blic WHERE id=' + str(user_id)).fetchone()
-        myansw = (f'Мои ответы на викторину:\n'
+        myansw = (f'*Мои ответы на викторину:\n'
                   f'Кошки/собаки: {mypvic[1]}\n'
                   f'Пицца/суши: {mypvic[2]}\n'
                   f'Море/горы: {mypvic[3]}\n'
@@ -547,7 +548,7 @@ async def my_blic(call):
                   f'Родительство: {mypvic[11]}\n'
                   f'Моя музыка: {mypvic[12]}\n'
                   f'Мои фильмы: {mypvic[13]}\n'
-                  f'Мои книги: {mypvic[14]}\n')
+                  f'Мои книги: {mypvic[14]}\n*')
         victorina_menu = InlineKeyboardMarkup(row_width=2)
         victorina_menu.insert(button11)
         victorina_menu.insert(button4)
@@ -832,21 +833,21 @@ async def books(message: types.Message, state: FSMContext):
     cur.execute('UPDATE Blic SET knigas == ? WHERE id == ?', (mes, user_id))
     bd.commit()
     mypvic = cur.execute('SELECT * FROM Blic WHERE id=' + str(user_id)).fetchone()
-    myansw = (f'Мои ответы на викторину:\n'
-              f'Кошки/собаки: {mypvic[1]}\n'
-              f'Пицца/суши: {mypvic[2]}\n'
-              f'Море/горы: {mypvic[3]}\n'
-              f'Квартира/дом: {mypvic[4]}\n'
-              f'Самолет/поезд:{mypvic[5]}\n'
-              f'Чай/кофе: {mypvic[6]}\n'
-              f'ТВ/Youtube: {mypvic[7]}\n'
-              f'Андроид/ios: {mypvic[8]}\n'
-              f'Татуировки: {mypvic[9]}\n'
-              f'Водительство: {mypvic[10]}\n'
-              f'Родительство: {mypvic[11]}\n'
-              f'Моя музыка: {mypvic[12]}\n'
-              f'Мои фильмы: {mypvic[13]}\n'
-              f'Мои книги: {mypvic[14]}\n')
+    myansw = (f'*Мои ответы на викторину*:\n'
+              f'*Кошки/собаки*: {mypvic[1]}\n'
+              f'*Пицца/суши*: {mypvic[2]}\n'
+              f'*Море/горы*: {mypvic[3]}\n'
+              f'*Квартира/дом*: {mypvic[4]}\n'
+              f'*Самолет/поезд*:{mypvic[5]}\n'
+              f'*Чай/кофе*: {mypvic[6]}\n'
+              f'*ТВ/Youtub*: {mypvic[7]}\n'
+              f'*Андроид/ios*: {mypvic[8]}\n'
+              f'*Татуировки*: {mypvic[9]}\n'
+              f'*Водительство*: {mypvic[10]}\n'
+              f'*Родительство*: {mypvic[11]}\n'
+              f'*Моя музыка*: {mypvic[12]}\n'
+              f'*Мои фильмы*: {mypvic[13]}\n'
+              f'*Мои книги*: {mypvic[14]}\n')
     victorina_menu = InlineKeyboardMarkup(row_width=2)
     victorina_menu.insert(button4)
     await bot.send_message(chat_id=user_id,
