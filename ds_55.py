@@ -14,11 +14,16 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
+from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
 API_TOKEN = 'Token'
+GROUP_DS_55_ID = -1
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
+
+register_quiz_handlers(dp)
+
 # Подключаемся/создаем базу данных
 bd = sqlite3.connect('datasciense.db')
 cur = bd.cursor()
