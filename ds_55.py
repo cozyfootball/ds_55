@@ -20,10 +20,7 @@ from collections import Counter
 from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
-
-
 GROUP_DS_55_ID = -1001883554676
-
 API_TOKEN = ''
 
 bot = Bot(token=API_TOKEN)
@@ -35,8 +32,6 @@ register_quiz_handlers(dp)
 bd = sqlite3.connect('datasciense.db')
 cur = bd.cursor()
 
-
-GROUP_DS_55_ID = -1001883554676
 bd.commit()
 # Создаем таблицу(если её еще не существет) всех пользователей чатика. Столбцы: id, имя в чате, пол, возраст, город, репутация, библиотека-роль, о себе, почему ДС)
 bd.execute('CREATE TABLE IF NOT EXISTS Users (id int NOT NULL, chat_name NULL, sex NULL, age int NULL, city NULL, rep int, libstate NULL, aself NULL, whyds NULL, PRIMARY KEY(id))')
@@ -1042,7 +1037,7 @@ async def myreput_func(call):
             parse_mode="MarkDown")
     else:
         await bot.send_message(
-            chat_id=GROUP_DS_55_IDd,
+            chat_id=GROUP_DS_55_ID,
             text=f'Репутация {mention}, на текущий момент составляет - {user_rate_cur[0]} ⭐️\n', parse_mode="MarkDown")
     mykings.clear()
 
