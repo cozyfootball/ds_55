@@ -19,7 +19,7 @@ from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
 
-
+# Подключение модуля quiz
 register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных
@@ -1034,7 +1034,7 @@ async def myreput_func(call):
             parse_mode="MarkDown")
     else:
         await bot.send_message(
-            chat_id=GROUP_DS_55_IDd,
+            chat_id=GROUP_DS_55_ID,
             text=f'Репутация {mention}, на текущий момент составляет - {user_rate_cur[0]} ⭐️\n', parse_mode="MarkDown")
     mykings.clear()
 
