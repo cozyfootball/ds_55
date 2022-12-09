@@ -28,8 +28,6 @@ from create_bot import bot, dp, GROUP_DS_55_ID
 bd = sqlite3.connect('datasciense.db')
 cur = bd.cursor()
 
-
-GROUP_DS_55_ID = -1001883554676
 bd.commit()
 # Создаем таблицу(если её еще не существет) всех пользователей чатика. Столбцы: id, имя в чате, пол, возраст, город, репутация, библиотека-роль, о себе, почему ДС)
 bd.execute('CREATE TABLE IF NOT EXISTS Users (id int NOT NULL, chat_name NULL, sex NULL, age int NULL, city NULL, rep int, libstate NULL, aself NULL, whyds NULL, PRIMARY KEY(id))')
