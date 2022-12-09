@@ -955,7 +955,7 @@ async def myfact_func(call):
                 f'👩🏻‍🦰Партия уже родителей - *{not_kid}%*🧔🏻‍♂️')
     list_q = [pk_q, drive_q, tatoo_q, tel_q, tea_q, train_q, flath_q, seam_q, eat_q, animal_q, tv_q]
     analyst = random.choice(list_q)
-    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=tv_q, parse_mode="MarkDown")
+    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=analyst, parse_mode="MarkDown")
     mykings.clear()
 
 @dp.callback_query_handler(IsVIP(), text='mycom')
