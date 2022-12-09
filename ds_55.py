@@ -15,13 +15,13 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from collections import Counter
-from create_bot import bot, dp
+from create_bot import bot, dp, GROUP_DS_55_ID
 
 #from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
 
-GROUP_DS_55_ID = -1001883554676
+
 #register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных
@@ -399,17 +399,7 @@ async def print_func(message: types.Message):
             chat_id=GROUP_DS_55_ID,
             sticker="CAACAgIAAxkBAAEGvlZjkluuNc9rcXyHz2CfH5v4Tgs6HQACtBQAAtdB-UrTW2cy7dEMQysE"
         )
-    elif message_lower.find('тарос') > -1:
-        sleep(3)
-        stick_list = ['CAACAgIAAxkBAAEGv75jk0wFqJ_a9NTkXSSsw0WSPw_zCAACwAADKJcGAAFhjyrXKl5tTisE',
-                      'CAACAgIAAxkBAAEGv8Bjk0wN6EqK64c4XQ-SvWM4nuBQVQACjgADKJcGAAEjKuNEWg7P0isE',
-                      'CAACAgIAAxkBAAEGv8Jjk0wa-ZW_kOIoH35cRoqwqHlt9QACxwADKJcGAAH4yvn60cNpHCsE',
-                      'CAACAgIAAxkBAAEGv8xjk0xdy4-b-KDZMNtpTGcgFPZNlwACswADKJcGAAFx6TKsPKKF-isE']
-        forfun = random.choice(stick_list)
-        await bot.send_sticker(
-            chat_id=GROUP_DS_55_ID,
-            sticker=forfun
-        )
+
     elif message.reply_to_message.from_user.is_bot:
         sleep(4)
         all_phrases = ['Ну что сказать, ну что сказать, человек мой дорогой?',
@@ -993,7 +983,7 @@ async def mytrue_func(call):
         dolya = round(len(base_list_w)/len(base_list)*100, 3)
         await bot.send_message(
             chat_id=GROUP_DS_55_ID,
-            text=f'Гинекократия наметилась.\nДевушки владеют контрольным пакетом чата в размере *{dolya}%*', parse_mode="MarkDown")
+            text=f'Гинекократия наметилась.\nПринцессы чата владеют девичьим ридикюлем чата в размере *{dolya}%*', parse_mode="MarkDown")
     elif len(base_list_w) < len(base_list_m):
         dolya = round(len(base_list_m) / len(base_list)*100, 3)
         await bot.send_message(
@@ -1099,13 +1089,20 @@ async def myfilms_func(call):
     mykings.clear()
 @dp.message_handler()
 async def check_user(message: types.Message):
-    # chat_name = message.from_user.first_name
-    user_id = message.from_user.id
-    fellows = cur.execute('SELECT id FROM Users').fetchall()
-    fellows_list = [x[0] for x in fellows]
-    if user_id not in fellows_list:
-        cur.execute('INSERT INTO Users(id, rep) VALUES(?, ?)', (user_id, 0))
-        bd.commit()
+    message_lower = message.text.lower()
+    if message_lower.find('тарос') > -1:
+        sleep(3)
+        stick_list = ['CAACAgIAAxkBAAEGv75jk0wFqJ_a9NTkXSSsw0WSPw_zCAACwAADKJcGAAFhjyrXKl5tTisE',
+                      'CAACAgIAAxkBAAEGv8Bjk0wN6EqK64c4XQ-SvWM4nuBQVQACjgADKJcGAAEjKuNEWg7P0isE',
+                      'CAACAgIAAxkBAAEGv8Jjk0wa-ZW_kOIoH35cRoqwqHlt9QACxwADKJcGAAH4yvn60cNpHCsE',
+                      'CAACAgIAAxkBAAEGv8xjk0xdy4-b-KDZMNtpTGcgFPZNlwACswADKJcGAAFx6TKsPKKF-isE']
+        forfun = random.choice(stick_list)
+        await bot.send_sticker(
+            chat_id=GROUP_DS_55_ID,
+            sticker=forfun)
+    elif message_lower.find('пасиб') > -1:
+        await message.answer(
+                text=f'У нас принято благодарить сокурсников в ответ на их сообщение с полезной информацией')
 
 
 
