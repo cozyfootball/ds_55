@@ -13,12 +13,10 @@ from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from collections import Counter
 
-from create_bot import bot, dp
+from create_bot import bot, dp, GROUP_DS_55_ID
 from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
-GROUP_DS_55_ID = -1001883554676
-
 register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных

@@ -5,9 +5,7 @@ from typing import List
 from aiogram import types
 from aiogram.utils.exceptions import MessageCantBeDeleted
 
-from create_bot import bot
-from ds_55 import GROUP_DS_55_ID
-
+from create_bot import bot, GROUP_DS_55_ID
 
 quiz_db = {}  # Словарь-хранилище для активных опросов
 
