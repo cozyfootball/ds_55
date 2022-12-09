@@ -17,16 +17,16 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from collections import Counter
 
 
-from quiz import register_quiz_handlers
+#from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
 GROUP_DS_55_ID = -1001883554676
-API_TOKEN = ''
+API_TOKEN = '5366990934:AAFAnuzrrZQ5aUjBsjckOrEOiG5oREkCNBI'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
-register_quiz_handlers(dp)
+#register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных
 bd = sqlite3.connect('datasciense.db')
@@ -376,10 +376,10 @@ async def print_func(message: types.Message):
         mycheck = cur.execute('SELECT * FROM Users WHERE id=' + str(rep_id)).fetchone()
         if not mycheck[4]:
             await message.answer(
-                text=f'{rep_name} пока еще не чувствует себя ДСером, '
+                text=f'{mention_rep} пока еще не чувствует себя ДСером, '
                      f'у него нет профиля и ему нечего рассказывать о себе',
                 parse_mode="MarkDown")
-
+            await message.delete()
         elif len(mycheck[7]) >= 3:
             myinfo = (
                 f'*Профиль {rep_name}*\n'
@@ -760,7 +760,7 @@ async def books(message: types.Message, state: FSMContext):
     victorina_menu = InlineKeyboardMarkup(row_width=2)
     victorina_menu.insert(button4)
     await bot.send_message(chat_id=user_id,
-                           text=myansw, reply_markup=victorina_menu)
+                           text=myansw, reply_markup=victorina_menu, parse_mode='MarkDown')
 
     await state.reset_state()
 # Реакция на кнопку возврата в основное меню(клавиатура)
@@ -825,7 +825,7 @@ async def test_your_luck(message: types.Message):
             chat_id=message.chat.id,
             text='Прости, но ларец с мудростями доступен только ДС-личностей(заполненные: профиль+блиц).'
         )
-
+    await message.delete()
 
 
 @dp.callback_query_handler(text='myfact')
