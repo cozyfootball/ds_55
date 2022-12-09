@@ -1,5 +1,3 @@
-from aiogram import Bot
-from aiogram import Dispatcher
 from aiogram import executor
 from aiogram import types
 from time import sleep
@@ -17,12 +15,12 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from collections import Counter
 from create_bot import bot, dp, GROUP_DS_55_ID
 
-#from quiz import register_quiz_handlers
+from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
 
 
-#register_quiz_handlers(dp)
+register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных
 bd = sqlite3.connect('datasciense.db')
