@@ -5,3 +5,4 @@ API_TOKEN = '5366990934:AAFAnuzrrZQ5aUjBsjckOrEOiG5oREkCNBI'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
+GROUP_DS_55_ID = -1001883554676
