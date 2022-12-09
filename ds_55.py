@@ -21,7 +21,7 @@ from collections import Counter
 
 # Базовые настройки для соединения с созданным ботом
 GROUP_DS_55_ID = -1001883554676
-API_TOKEN = '5366990934:AAFAnuzrrZQ5aUjBsjckOrEOiG5oREkCNBI'
+API_TOKEN = ''
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
