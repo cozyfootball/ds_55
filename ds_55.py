@@ -1,5 +1,3 @@
-from aiogram import Bot
-from aiogram import Dispatcher
 from aiogram import executor
 from aiogram import types
 from time import sleep
@@ -11,22 +9,17 @@ from aiogram.dispatcher import FSMContext
 import random
 import sqlite3
 import statistics as st
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from collections import Counter
 
-
-#from quiz import register_quiz_handlers
+from create_bot import bot, dp
+from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
 GROUP_DS_55_ID = -1001883554676
-API_TOKEN = ''
 
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot, storage=MemoryStorage())
-
-#register_quiz_handlers(dp)
+register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных
 bd = sqlite3.connect('datasciense.db')
@@ -71,6 +64,8 @@ class Profile(StatesGroup):
     ProfileCity = State()
     ProfileAself = State()
     ProfileWhyDs = State()
+
+
 class Blic(StatesGroup):
     cat_dog = State()
     pizza_suchi = State()
@@ -86,6 +81,8 @@ class Blic(StatesGroup):
     music = State()
     films = State()
     books = State()
+
+
 @dp.message_handler(CommandStart())
 async def first_step(message: types.Message):
     user_id = message.from_user.id
