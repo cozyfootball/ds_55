@@ -1,7 +1,7 @@
 from aiogram import Dispatcher
 from aiogram.dispatcher.filters import Text
 
-from quiz.quiz import cmd_quiz, quiz_callback
+from quiz.q import cmd_quiz, quiz_callback
 
 
 def register_quiz_handlers(dp: Dispatcher) -> None:
