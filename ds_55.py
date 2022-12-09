@@ -15,23 +15,21 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from collections import Counter
-
+from create_bot import bot, dp
 
 #from quiz import register_quiz_handlers
 
 # Базовые настройки для соединения с созданным ботом
+
 GROUP_DS_55_ID = -1001883554676
-API_TOKEN = ''
-
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot, storage=MemoryStorage())
-
 #register_quiz_handlers(dp)
 
 # Подключаемся/создаем базу данных
 bd = sqlite3.connect('datasciense.db')
 cur = bd.cursor()
 
+
+GROUP_DS_55_ID = -1001883554676
 bd.commit()
 # Создаем таблицу(если её еще не существет) всех пользователей чатика. Столбцы: id, имя в чате, пол, возраст, город, репутация, библиотека-роль, о себе, почему ДС)
 bd.execute('CREATE TABLE IF NOT EXISTS Users (id int NOT NULL, chat_name NULL, sex NULL, age int NULL, city NULL, rep int, libstate NULL, aself NULL, whyds NULL, PRIMARY KEY(id))')
@@ -111,7 +109,7 @@ async def first_step(message: types.Message):
         victory_id_list = [x[0] for x in victory_id]
         # сценарий если участвовал
         if user_id in victory_id_list:
-            good_person = f'Твой профиль заполнен и ты прошёл блиц. Давай обнимися, что ли? Золотый ты человечек'
+            good_person = f'Твой профиль заполнен и ты прошёл блиц. Ты супер!'
             await  bot.send_message(chat_id=user_id, text=good_person, parse_mode="MarkDown")
         # сценарий если не участвовал
         elif user_id not in victory_id_list:
@@ -374,10 +372,11 @@ async def print_func(message: types.Message):
             )
     elif message_lower.find('профил') > -1:
         mycheck = cur.execute('SELECT * FROM Users WHERE id=' + str(rep_id)).fetchone()
-        if not mycheck[4]:
+        mention_rep = "[" + rep_name + "](tg://user?id=" + str(rep_id) + ")"
+        if mycheck[4] == None:
             await message.answer(
-                text=f'{mention_rep} пока еще не чувствует себя ДСером, '
-                     f'у него нет профиля и ему нечего рассказывать о себе',
+                text=f'{mention_rep} стесняется себя и своих сокурсников\n' 
+                     f'Может намекнем стесняшке, что мы тут все свои и не кусаемcя🥹?',
                 parse_mode="MarkDown")
             await message.delete()
         elif len(mycheck[7]) >= 3:
@@ -395,12 +394,24 @@ async def print_func(message: types.Message):
             await message.delete()
 
     elif message_lower.find('пока') > -1:
+        sleep(5)
         await bot.send_sticker(
             chat_id=GROUP_DS_55_ID,
-            sticker="CAACAgIAAxkBAAEGvlZjkluuNc9rcXyHz2CfH5v4Tgs6HQACtBQAAtdB - UrTW2cy7dEMQysE"
+            sticker="CAACAgIAAxkBAAEGvlZjkluuNc9rcXyHz2CfH5v4Tgs6HQACtBQAAtdB-UrTW2cy7dEMQysE"
+        )
+    elif message_lower.find('тарос') > -1:
+        sleep(3)
+        stick_list = ['CAACAgIAAxkBAAEGv75jk0wFqJ_a9NTkXSSsw0WSPw_zCAACwAADKJcGAAFhjyrXKl5tTisE',
+                      'CAACAgIAAxkBAAEGv8Bjk0wN6EqK64c4XQ-SvWM4nuBQVQACjgADKJcGAAEjKuNEWg7P0isE',
+                      'CAACAgIAAxkBAAEGv8Jjk0wa-ZW_kOIoH35cRoqwqHlt9QACxwADKJcGAAH4yvn60cNpHCsE',
+                      'CAACAgIAAxkBAAEGv8xjk0xdy4-b-KDZMNtpTGcgFPZNlwACswADKJcGAAFx6TKsPKKF-isE']
+        forfun = random.choice(stick_list)
+        await bot.send_sticker(
+            chat_id=GROUP_DS_55_ID,
+            sticker=forfun
         )
     elif message.reply_to_message.from_user.is_bot:
-        sleep(2)
+        sleep(4)
         all_phrases = ['Ну что сказать, ну что сказать, человек мой дорогой?',
                        'Точное время 4 часа 20 минут',
                        'Да ты мне не рассказывай, ты им рассказывай',
@@ -760,7 +771,7 @@ async def books(message: types.Message, state: FSMContext):
     victorina_menu = InlineKeyboardMarkup(row_width=2)
     victorina_menu.insert(button4)
     await bot.send_message(chat_id=user_id,
-                           text=myansw, reply_markup=victorina_menu, parse_mode='MarkDown')
+                           text=myansw, reply_markup=victorina_menu)
 
     await state.reset_state()
 # Реакция на кнопку возврата в основное меню(клавиатура)
@@ -796,7 +807,7 @@ async def test_your_luck(message: types.Message):
             mykings.append(i)
 
     if user_id in fellows_list and user_id in fellows_list2:
-        button21 = InlineKeyboardButton(text='DS Истина👏🏻', callback_data='mytrue')
+        button21 = InlineKeyboardButton(text='DS истина👏🏻', callback_data='mytrue')
         button22 = InlineKeyboardButton(text='Типичный DS🧐', callback_data='myfact')
         button23 = InlineKeyboardButton(text='Наш коллектив👨‍👩‍👦‍👦', callback_data='mycom')
         button24 = InlineKeyboardButton(text='Наша музыка🎼', callback_data='mymusic')
@@ -812,7 +823,7 @@ async def test_your_luck(message: types.Message):
         luck.insert(button26)
         luck.insert(button27)
         mymes = await bot.send_message(
-            chat_id=GROUP_DS_55_ID,
+            chat_id=message.chat.id,
             text='Пришло время поделиться истиной.🪙',
             parse_mode="MarkDown",
             reply_markup=luck
@@ -825,15 +836,15 @@ async def test_your_luck(message: types.Message):
             chat_id=message.chat.id,
             text='Прости, но ларец с мудростями доступен только ДС-личностей(заполненные: профиль+блиц).'
         )
-    await message.delete()
 
+    await message.delete()
 
 @dp.callback_query_handler(text='myfact')
 async def myfact_func(call):
     all_anim = cur.execute('SELECT cat_dog  FROM Blic').fetchall()
     base_list = [x[0] for x in all_anim]
     counter_animals = Counter(base_list)
-    all_animals = counter_animals.get('🐈') + counter_animals.get('🐕\u200d🦺')
+    all_animals = len(base_list)
     cats_perc = round(counter_animals.get('🐈') / all_animals * 100, 3)
     dogs_perc = round(counter_animals.get('🐕\u200d🦺') / all_animals * 100, 3)
     animal_q = (f'Любители шерстянкых товарищей на месте? Результаты честных выборов\n'
@@ -844,7 +855,7 @@ async def myfact_func(call):
     all_e = cur.execute('SELECT pizza_suchi FROM Blic').fetchall()
     base_list_ps = [x[0] for x in all_e]
     counter_eat = Counter(base_list_ps)
-    all_eat = counter_eat.get('🍣') + counter_eat.get('🍕')
+    all_eat = len(base_list_ps)
     pizza_perc = round(counter_eat.get('🍕') / all_eat * 100, 3)
     suchi_perc = round(counter_eat.get('🍣') / all_eat * 100, 3)
     eat_q = (f'Любители пощекотать вкусовые рецепторы на месте? Результаты честных выборов\n'
@@ -854,7 +865,7 @@ async def myfact_func(call):
     all_seamou = cur.execute('SELECT sea_mount FROM Blic').fetchall()
     base_list_sm = [x[0] for x in all_seamou]
     counter_sm = Counter(base_list_sm)
-    all_seamount = counter_sm.get('🏖') + counter_sm.get('🏔')
+    all_seamount = len(base_list_sm)
     sea_perc = round(counter_sm.get('🏖') / all_seamount * 100, 3)
     mount_perc = round(counter_sm.get('🏔') / all_seamount * 100, 3)
     seam_q = (f'Любители хорошо отдохнуть? Результаты честных выборов\n'
@@ -864,7 +875,7 @@ async def myfact_func(call):
     all_flh = cur.execute('SELECT flat_house FROM Blic').fetchall()
     base_list_fh = [x[0] for x in all_flh]
     counter_fh = Counter(base_list_fh)
-    all_flathouse = counter_fh.get('🏡') + counter_fh.get('🏢')
+    all_flathouse = len(base_list_fh)
     home_perc = round(counter_fh.get('🏡') / all_flathouse * 100, 3)
     flat_perc = round(counter_fh.get('🏢') / all_flathouse * 100, 3)
     flath_q = (f'Любители крыши дома своего на месте? Результаты честных выборов\n'
@@ -874,7 +885,7 @@ async def myfact_func(call):
     all_tp = cur.execute('SELECT train_plain FROM Blic').fetchall()
     base_list_tp = [x[0] for x in all_tp]
     counter_tp = Counter(base_list_tp)
-    all_trainplain = counter_tp.get('✈️') + counter_tp.get('🚂')
+    all_trainplain = len(base_list_tp)
     plain_perc = round(counter_tp.get('✈️') / all_trainplain * 100, 3)
     train_perc = round(counter_tp.get('🚂') / all_trainplain * 100, 3)
     train_q = (f'Любители путешествовать на месте? Результаты честных выборов\n'
@@ -884,9 +895,9 @@ async def myfact_func(call):
     all_tc = cur.execute('SELECT tea_coffe FROM Blic').fetchall()
     base_list_tc = [x[0] for x in all_tc]
     counter_tc = Counter(base_list_tc)
-    all_tea_coffe = counter_tc.get('🫖') + counter_tc['☕️']
+    all_tea_coffe = len(base_list_tc)
     tea_perc = round(counter_tc.get('🫖') / all_tea_coffe * 100, 3)
-    coffe_perc = round(counter_tc['☕️'] / all_tea_coffe * 100, 3)
+    coffe_perc = round((all_tea_coffe - counter_tc.get('🫖')) / all_tea_coffe * 100, 3)
     tea_q = (f'Любители теплых напитков на месте? Результаты честных выборов\n'
                 f'🫖Партия чайного спокойствия- *{tea_perc}%*🫖\n'
                 f'☕️Партия кофейной суеты - *{coffe_perc}%*☕️')
@@ -895,8 +906,8 @@ async def myfact_func(call):
     all_tt = cur.execute('SELECT tv_tube FROM Blic').fetchall()
     base_list_tt = [x[0] for x in all_tt]
     counter_tt = Counter(base_list_tt)
-    all_tv_tube = counter_tt['🖥️'] + counter_tt['📺']
-    tube_perc = round(counter_tt['🖥️️'] / all_tv_tube * 100, 3)
+    all_tv_tube = len(base_list_tt)
+    tube_perc = round((all_tv_tube-counter_tt['📺']) / all_tv_tube * 100, 3)
     tv_perc = round(counter_tt['📺'] / all_tv_tube * 100, 3)
     tv_q = (f'Любители повтыкать в экран на месте? Результаты честных выборов\n'
                 f'📺Партия ТВ - староверов  - *{tv_perc}%*📺\n'
@@ -906,9 +917,9 @@ async def myfact_func(call):
     all_ai = cur.execute('SELECT andr_ios FROM Blic').fetchall()
     base_list_ai = [x[0] for x in all_ai]
     counter_ai = Counter(base_list_ai)
-    all_andr = counter_ai['📵android'] + counter_ai.get('📱ios')
-    aios_perc = round(counter_ai['📵android️'] / all_andr * 100, 3)
-    andr_perc = round(counter_ai.get('📱ios') / all_andr * 100, 3)
+    all_andr = len(base_list_ai)
+    aios_perc = round(counter_ai['📱ios'] / all_andr * 100, 3)
+    andr_perc = round((all_andr - counter_ai['📱ios']) / all_andr * 100, 3)
     tel_q = (f'Любители потыкать в экран на месте? Результаты честных выборов\n'
                 f'Партия яблочников  - *{aios_perc}%*📱ios\n'
                 f'Партия андроидов - *{andr_perc}%*📵android')
@@ -916,35 +927,35 @@ async def myfact_func(call):
     all_tat = cur.execute('SELECT tatoo FROM Blic').fetchall()
     base_list_tat = [x[0] for x in all_tat]
     counter_tat = Counter(base_list_tat)
-    all_tatoo = counter_tat.get('✅') + counter_tat.get('⛔️')
+    all_tatoo = len(base_list_tat)
     yest_perc = round(counter_tat.get('✅') / all_tatoo * 100, 3)
     not_perc = round(counter_tat.get('⛔️') / all_tatoo * 100, 3)
     tatoo_q = (f'Любите живопись по телу? Результаты честных выборов\n'
-                f'Партия яркой внешности  - *{yest_perc}%*\n'
-                f'Партия чистого тела - *{not_perc}%*')
+                f'🎨Партия яркой внешности  - *{yest_perc}%🎨*\n'
+                f'🧽Партия чистого тела - *{not_perc}%🧽*')
 
     all_dr = cur.execute('SELECT drive FROM Blic').fetchall()
     base_list_dr = [x[0] for x in all_dr]
     counter_dr = Counter(base_list_dr)
-    all_drive = counter_dr.get('✅') + counter_dr.get('⛔️')
+    all_drive = len(base_list_dr)
     yesdr_perc = round(counter_dr.get('✅') / all_drive * 100, 3)
     notdr_perc = round(counter_dr.get('⛔️') / all_drive * 100, 3)
     drive_q = (f'Водитель или пешеход? Результаты честных выборов\n'
-                f'Партия водителей - *{yesdr_perc}%*\n'
-                f'Партия исключительно пешеходов - *{notdr_perc}%*')
+                f'🛻Партия водителей - *{yesdr_perc}%*🚗\n'
+                f'🚶‍♀️Партия исключительно пешеходов - *{notdr_perc}%*🚶‍♂️')
 
     all_pk= cur.execute('SELECT parent_kid FROM Blic').fetchall()
     base_list_pk = [x[0] for x in all_pk]
     counter_pk = Counter(base_list_pk)
-    all_parentkid = counter_pk.get('✅') + counter_pk.get('⛔️')
+    all_parentkid = len(base_list_pk)
     yest_kid = round(counter_pk.get('✅') / all_drive* 100, 3)
     not_kid = round(counter_pk.get('⛔️') / all_drive * 100, 3)
-    pk_q = (f'Родитель или все еще ребенок? Результаты честных выборов\n'
-                f'Партия пока еще детей  - *{yest_kid}%*\n'
-                f'Партия уже родителей- *{not_kid}%*')
-    list_q = [pk_q, drive_q, tatoo_q, tel_q, tv_q, tea_q, train_q, flath_q, seam_q, eat_q, animal_q]
+    pk_q = (f'Имеешь родительские обязанности или рановато? Результаты честных выборов\n'
+                f'👶🏻Партия пока еще детей - *{yest_kid}%*👧🏻\n'
+                f'👩🏻‍🦰Партия уже родителей - *{not_kid}%*🧔🏻‍♂️')
+    list_q = [pk_q, drive_q, tatoo_q, tel_q, tea_q, train_q, flath_q, seam_q, eat_q, animal_q, tv_q]
     analyst = random.choice(list_q)
-    await bot.edit_message_text(chat_id=GROUP_DS_55_ID, message_id=kingmes[-1], text=analyst, parse_mode="MarkDown")
+    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=tv_q, parse_mode="MarkDown")
     mykings.clear()
 
 @dp.callback_query_handler(IsVIP(), text='mycom')
@@ -1037,7 +1048,7 @@ async def myreput_func(call):
             parse_mode="MarkDown")
     else:
         await bot.send_message(
-            chat_id=GROUP_DS_55_ID,
+            chat_id=GROUP_DS_55_IDd,
             text=f'Репутация {mention}, на текущий момент составляет - {user_rate_cur[0]} ⭐️\n', parse_mode="MarkDown")
     mykings.clear()
 
