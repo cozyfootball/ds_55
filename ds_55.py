@@ -9,6 +9,7 @@ from aiogram.dispatcher import FSMContext
 import random
 import sqlite3
 import statistics as st
+#import pandas as pd
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -314,18 +315,19 @@ async def print_func(message: types.Message):
     user_name = message.from_user.first_name
     mention_rep = "[" + rep_name + "](tg://user?id=" + str(rep_id) + ")"
     if message.from_user.id == 840994663:
-        sleep(3)
+        sleep(5)
         maga_phrase = ['Ну что сказать, ну что сказать, человек мой дорогой?',
                        'КВН заказывали?',
                        'Да ты мне не рассказывай, ты им рассказывай',
                        'Cмекаешь?',
                        'Ты тут самый крутой',
+                       'Не всем дано это понять',
                        'Может посплетничаем?',
                        'Любишь кататься - люби и катайся',
                        'Вообще-то да',
                        'Еще чего, какие глупости',
-                       'Посветуй фильмец какой-нибудь'
-                       'Где сейчас можно недорого отдохнуть?',
+                       'Вообще-то, но в данный момент нет',
+                       'Ну допустим...',
                        'Как я тебя понимаю'
                        'Ну вот и я о том же',
                        'А можно тост?']
@@ -341,7 +343,7 @@ async def print_func(message: types.Message):
             user_rate_cur = cur.execute('SELECT rep FROM Users WHERE id == ?', (rep_id,)).fetchone()
             # Если нет юзера в базе, то добавляем его туда сразу с рейтингом 1
             if not user_rate_cur:
-                cur.execute('INSERT INTO Users (id, rep) VALUES(?, ?)', (rep_id, 1))
+                cur.execute('INSERT INTO Users (id, rep) VALUES(?, ?)', (rep_id, 0))
                 bd.commit()
                 user_rate_fin = 1
             # если юзер есть, то обновляем его данные
@@ -350,16 +352,19 @@ async def print_func(message: types.Message):
                 cur.execute('UPDATE Users SET rep == ? WHERE id == ?', (user_rate_fin, rep_id))
                 bd.commit()
 
-            funfact = ['приятный человек и мудрый собеседник.',
+            funfact = ['приятный человек.',
+                       'мудрый собеседник.'
                        'всегда сумеет найти нужные слова.',
-                       'человек с большой Буквы.',
+                       'человек с большой буквЫ.',
                        'ты просто наиприятнейшая личность в контексте DS',
                        'цветок добра',
                        'расшарил(а) мудрость',
-                       'авторитетен и ТОЧКА',
+                       'авторитетен и тОЧКА',
                        'задаёт хороший тон',
                        'умеет делать красиво',
-                       'от души душевно в душу - часто слышишь?']
+                       'помощник дня',
+                       'чудесный индивидуум',
+                       'статистически успешен']
             forfun = random.choice(funfact)
             await message.answer(
                 text=f' {mention_rep} {forfun}.\n+1 в твою личную коллекцию благодарностей.'
@@ -389,7 +394,7 @@ async def print_func(message: types.Message):
             await bot.send_message(chat_id=message.from_user.id, text=myinfo, parse_mode="MarkDown")
             await message.delete()
 
-    elif message_lower.find('пока') > -1:
+    elif message_lower.find('покаж') > -1:
         sleep(5)
         await bot.send_sticker(
             chat_id=GROUP_DS_55_ID,
@@ -421,14 +426,15 @@ async def print_func(message: types.Message):
                        'Милейший ты мой',
                        'Я щас закончу вообще всё!',
                        'Не бери в голову',
-                       'Иногда приходиться прикинуться дурачком, чтобы не выглядеть идиотом']
+                       'Иногда приходиться прикинуться дурачком, чтобы не выглядеть идиотом',
+                       'Hello guys, u menya vse nice']
         forfun = random.choice(all_phrases)
         await message.answer(text=forfun, parse_mode="MarkDown")
 
 # Новичок в группе
 @dp.message_handler(content_types=types.ContentType.NEW_CHAT_MEMBERS)
 async def new_member(message):
-    await message.answer(f"У нас пополнение - {message.new_chat_members[0].get_mention(as_html=True)}. Вкратце расскажи про свой путь DSeра, нам реально интересно", parse_mode='HTML')
+    await message.answer(f"Товарищи, у нас новоборанец - {message.new_chat_members[0].get_mention(as_html=True)}.\nРасскажи нам про свой опыт обучения на DS. Ты с какого потока?", parse_mode='HTML')
     await bot.send_sticker(chat_id=message.chat.id, sticker='CAACAgIAAxkBAAEGl9tjhNncRF99x78OPh02Wk6byzBeEgACXgwAApS4UEtOn6EuKYdYXisE')
 
 # Заготовка для реакции на кнопку БЛИЦ
@@ -779,7 +785,7 @@ class IsVIP(BoundFilter):
 
 mykings= []
 kingmes = []
-@dp.message_handler(text='55')
+@dp.message_handler(text=['55', 'бот', 'секрет', 'алмаз', 'мага'])
 async def test_your_luck(message: types.Message):
     user_id = message.from_user.id
     fellows = cur.execute('SELECT id FROM Users WHERE rep > 0').fetchall()
@@ -799,7 +805,8 @@ async def test_your_luck(message: types.Message):
         button24 = InlineKeyboardButton(text='Наша музыка🎼', callback_data='mymusic')
         button25 = InlineKeyboardButton(text='Наши фильмы🎥', callback_data='myfilms')
         button26 = InlineKeyboardButton(text='Наши книги📓', callback_data='mybooks')
-        button27 = InlineKeyboardButton(text='Наша репутация🔝', callback_data='myreput')
+        button27 = InlineKeyboardButton(text='Репутация🔝', callback_data='myreput')
+        button28 = InlineKeyboardButton(text='Один из нас🔝', callback_data='rrr')
         luck = InlineKeyboardMarkup(row_width=2)
         luck.insert(button21)
         luck.insert(button22)
@@ -808,6 +815,7 @@ async def test_your_luck(message: types.Message):
         luck.insert(button25)
         luck.insert(button26)
         luck.insert(button27)
+        luck.insert(button28)
         mymes = await bot.send_message(
             chat_id=message.chat.id,
             text='Пришло время поделиться истиной.🪙',
@@ -825,7 +833,23 @@ async def test_your_luck(message: types.Message):
 
     await message.delete()
 
-@dp.callback_query_handler(text='myfact')
+@dp.callback_query_handler(IsVIP(), text='rrr')
+async def myfriend_func(call):
+    base_aself = cur.execute('SELECT id, chat_name, aself FROM Users WHERE aself NOT NULL').fetchall()
+    one_ds = random.choice(base_aself)
+    rand_emo = ['🤌', '✊🏻', '💪🏻', '🫡']
+    mention = "[" + one_ds[1] + "](tg://user?id=" + str(one_ds[0]) + ")"
+    mess = (f'*Современный ДСер*, какой он?\n'
+            f'Один из нас *описывает* себя{random.choice(rand_emo)} так\n'
+            f'*{one_ds[2]}*\n'
+            f'Позвольте представить важного члена коллектива:\n'
+            f'Наша глубокоУважаемая личность {mention}\n'
+            f'*Лови респект от коллектива{random.choice(rand_emo)}*')
+    await bot.edit_message_text(chat_id=GROUP_DS_55_ID, message_id=kingmes[-1],
+                                text=mess, parse_mode="MarkDown")
+    mykings.clear()
+
+@dp.callback_query_handler(IsVIP(), text='myfact')
 async def myfact_func(call):
     all_anim = cur.execute('SELECT cat_dog  FROM Blic').fetchall()
     base_list = [x[0] for x in all_anim]
@@ -834,7 +858,7 @@ async def myfact_func(call):
     cats_perc = round(counter_animals.get('🐈') / all_animals * 100, 3)
     dogs_perc = round(counter_animals.get('🐕\u200d🦺') / all_animals * 100, 3)
     animal_q = (f'Любители шерстянкых товарищей на месте? Результаты честных выборов\n'
-                f'🐈Партия любителей кошек -*{cats_perc}%*🐈\n'
+                f'🐈Партия любителей кошек - *{cats_perc}%*🐈\n'
                 f'🐕\u200d🦺Партия любителей собак - *{dogs_perc}%*🐕\u200d🦺')
 
 
@@ -885,7 +909,7 @@ async def myfact_func(call):
     tea_perc = round(counter_tc.get('🫖') / all_tea_coffe * 100, 3)
     coffe_perc = round((all_tea_coffe - counter_tc.get('🫖')) / all_tea_coffe * 100, 3)
     tea_q = (f'Любители теплых напитков на месте? Результаты честных выборов\n'
-                f'🫖Партия чайного спокойствия- *{tea_perc}%*🫖\n'
+                f'🫖Партия чайного спокойствия - *{tea_perc}%*🫖\n'
                 f'☕️Партия кофейной суеты - *{coffe_perc}%*☕️')
 
 
@@ -907,7 +931,7 @@ async def myfact_func(call):
     aios_perc = round(counter_ai['📱ios'] / all_andr * 100, 3)
     andr_perc = round((all_andr - counter_ai['📱ios']) / all_andr * 100, 3)
     tel_q = (f'Любители потыкать в экран на месте? Результаты честных выборов\n'
-                f'Партия яблочников  - *{aios_perc}%*📱ios\n'
+                f'Партия яблочников - *{aios_perc}%*📱ios\n'
                 f'Партия андроидов - *{andr_perc}%*📵android')
 
     all_tat = cur.execute('SELECT tatoo FROM Blic').fetchall()
@@ -917,7 +941,7 @@ async def myfact_func(call):
     yest_perc = round(counter_tat.get('✅') / all_tatoo * 100, 3)
     not_perc = round(counter_tat.get('⛔️') / all_tatoo * 100, 3)
     tatoo_q = (f'Любите живопись по телу? Результаты честных выборов\n'
-                f'🎨Партия яркой внешности  - *{yest_perc}%🎨*\n'
+                f'🎨Партия яркой внешности - *{yest_perc}%🎨*\n'
                 f'🧽Партия чистого тела - *{not_perc}%🧽*')
 
     all_dr = cur.execute('SELECT drive FROM Blic').fetchall()
@@ -963,6 +987,10 @@ async def mytrue_func(call):
     user_age_med_w = st.median(base_list_w)
     base_max = cur.execute('SELECT MAX(age) FROM Users').fetchone()
     base_min = cur.execute('SELECT MIN(age) FROM Users').fetchone()
+    base_min_m = cur.execute('SELECT MIN(age) FROM Users WHERE sex="man"').fetchone()
+    base_min_w = cur.execute('SELECT MIN(age) FROM Users WHERE sex="woman"').fetchone()
+    base_max_m = cur.execute('SELECT MIN(age) FROM Users WHERE sex="man"').fetchone()
+    base_max_w = cur.execute('SELECT MIN(age) FROM Users WHERE sex="woman"').fetchone()
     mess = (f'С вашего позволения, я поделюсь *аналитикой* по чату:\n'
             f'На текущую секундочку в чате {len(base_list)} *настоящих мастеров DS*.\n'
             f'Средний возраст *элиты чата {round(user_age_avg, 2)}*\n'
@@ -970,6 +998,7 @@ async def mytrue_func(call):
              f'Медианый возраст *золотого фонда чата {user_age_med}*\n'
             f'*🗿 - {user_age_med_m}         👩🏻‍🦰 - {user_age_med_w}*\n'
             f'*Диапазон возрастов чата {base_min[0]} - {base_max[0]}*\n'
+            f'*🗿 {base_min_m[0]}-{base_max_m[0]}  👩🏻‍🦰 - {base_min_w[0]}-{base_max_w[0]}*\n'
             f'Внимание! Я вижу в чате еще *{len(base_count)-len(base_list)} живых юзеров*.\n'
             f'*Напишите* /start в отдельном чате со мной и заполните свои профили. Давайте еще лучше узнаем друг друга.\n'
             f'*А еще всего {len(blic_count)} прошли блиц.* Поторопитесь, на вершине еще остались места.')
@@ -1010,15 +1039,15 @@ async def myreput_func(call):
     mention5 = "[" + first_name5 + "](tg://user?id=" + str(top_of_rate[4][0]) + ")"
     fin_mes = (
         f'Извольте ознакомиться с самыми приятными собеседниками:\n'
-        f'Генеральный директор уважения - {mention1}.\n'
+        f'*Генеральный директор уважения* - {mention1}.\n'
         f'Баллы уважения {top_of_rate[0][1]}🦄🦄🦄\n'
-        f'Зам. генерального директора по престижу - {mention2}.\n'
+        f'*Зам. генерального директора по престижу* - {mention2}.\n'
         f'Уровень престижа {top_of_rate[1][1]}👑👑\n'
-        f'Зам. генерального директора по авторитету - {mention3}.\n'
+        f'*Зам. генерального директора по авторитету* - {mention3}.\n'
         f'Очки авторитета {top_of_rate[2][1]}🐗🐗\n'
-        f'Зам. генерального директора по репутации - {mention4}.\n' 
+        f'*Зам. генерального директора по репутации* - {mention4}.\n' 
         f'Репутационный итог {top_of_rate[3][1]}🌈🌈\n'
-        f'Тамада - баянист - {mention5}.\n'
+        f'*Тамада - баянист* - {mention5}.\n'
         f'Удачных мероприятий {top_of_rate[4][1]}🕺💃\n'
     )
     await bot.edit_message_text(chat_id=GROUP_DS_55_ID, message_id=kingmes[-1], text=fin_mes, parse_mode="MarkDown")
@@ -1048,8 +1077,8 @@ async def myrrueds_func(call):
                 f'Что такое этот *DataSciene?*{random.choice(rand_emo)}'
                 f'Когда дедлайн был близок и времени уже не оставалось, я дал слабину.\n'
                 f'Подумал, что это не моё, хотел вернуться на домашний диван.\n'
-                f'{mention} перубедил(а) меня своей мудростью.\n'
-                f'Мудрость: *{one_ds[2]}* {random.choice(rand_emo)}')
+                f'{mention} перубедил(а) всего несколькими словами.\n'
+                f'Когда я услышал: *{one_ds[2]}* {random.choice(rand_emo)} я сразу всё понял')
    await bot.edit_message_text(chat_id=GROUP_DS_55_ID, message_id=kingmes[-1],
         text=mess, parse_mode="MarkDown")
    mykings.clear()
@@ -1086,7 +1115,7 @@ async def myfilms_func(call):
 @dp.message_handler()
 async def check_user(message: types.Message):
     message_lower = message.text.lower()
-    if message_lower.find('тарос') > -1:
+    if message_lower.find('старос') > -1:
         sleep(3)
         stick_list = ['CAACAgIAAxkBAAEGv75jk0wFqJ_a9NTkXSSsw0WSPw_zCAACwAADKJcGAAFhjyrXKl5tTisE',
                       'CAACAgIAAxkBAAEGv8Bjk0wN6EqK64c4XQ-SvWM4nuBQVQACjgADKJcGAAEjKuNEWg7P0isE',
@@ -1098,7 +1127,15 @@ async def check_user(message: types.Message):
             sticker=forfun)
     elif message_lower.find('пасиб') > -1:
         await message.answer(
-                text=f'У нас принято благодарить сокурсников в ответ на их сообщение с полезной информацией')
+                text=f'Безадресная благодарность это как бесплатная зарплата. Кто-то доволен?')
+
+    # elif message_lower.find('наши города') > -1:
+    #     mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
+    #     base_list = [x[0] for x in mus_rss]
+    #     mychet = pd.Series(base_list)
+    #     mystable = mychet.value_counts().head(7)
+    #     await message.answer(
+    #         text=mystable)
 
 
 
