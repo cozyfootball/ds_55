@@ -29,7 +29,7 @@ cur = bd.cursor()
 
 bd.commit()
 # Создаем таблицу(если её еще не существет) всех пользователей чатика. Столбцы: id, имя в чате, пол, возраст, город, репутация, библиотека-роль, о себе, почему ДС)
-bd.execute('CREATE TABLE IF NOT EXISTS Users (id int NOT NULL, chat_name NULL, sex NULL, age int NULL, city NULL, rep int, libstate NULL, aself NULL, whyds NULL, PRIMARY KEY(id))')
+bd.execute('CREATE TABLE IF NOT EXISTS Users (id int NOT NULL, chat_name NULL, sex NULL, age int NULL, city NULL, rep int, libstate NULL, aself NULL, whyds NULL, progress int, type_educ NULL, flow_num int, PRIMARY KEY(id))')
 # НЕ ПРИОРИТЕТНАЯ ЗАДАЧА Создаем таблицу данных блица, ответы будем визуализировать графиками:
 bd.execute(
     'CREATE TABLE IF NOT EXISTS Blic ('
@@ -51,14 +51,15 @@ bd.execute(
     'PRIMARY KEY(id))')
 bd.execute('CREATE TABLE IF NOT EXISTS Base (id NOT NULL, name NULL, desc NULL, fullv NULL, args NULL, example NULL, dopinfo NULL, erors NULL, meth_args NULL, cat1 NULL, cat2 NULL, cat3 NULL, file NULL, PRIMARY KEY(id))')
 # команда подтверждающая изменения в БД
+
 bd.commit()
 
 # инлайн кнопки для основного меню и реакцию на старт
 button1 = InlineKeyboardButton(text='ПРОФИЛЬ🧐', callback_data='profile')
 button2 = InlineKeyboardButton(text='БЛИЦ🧾', callback_data='blic')
-button3 = InlineKeyboardButton(text='СКЛАД ДС💌', callback_data='base')
-button4 = InlineKeyboardButton(text='ОСНОВНОЕ МЕНЮ', callback_data='menu')
-
+button3 = InlineKeyboardButton(text='ССЫЛОЧКИ💌', callback_data='base')
+button4 = InlineKeyboardButton(text='ОСНОВНОЕ МЕНЮ©️', callback_data='menu')
+button5 = InlineKeyboardButton(text='МОЯ УЧЁБА🤓', callback_data='educ')
 
 class Profile(StatesGroup):
     ProfileSex = State()
@@ -66,6 +67,11 @@ class Profile(StatesGroup):
     ProfileCity = State()
     ProfileAself = State()
     ProfileWhyDs = State()
+
+class Educ(StatesGroup):
+    EducProgress = State()
+    EducType = State()
+    EducFlow = State()
 class Blic(StatesGroup):
     cat_dog = State()
     pizza_suchi = State()
@@ -89,7 +95,7 @@ async def first_step(message: types.Message):
     main_menu = InlineKeyboardMarkup(row_width=2)
     main_menu.insert(button1)
     main_menu.insert(button2)
-    # MainMenu.insert(button3)
+    main_menu.insert(button5)
     await bot.send_sticker(
         chat_id=message.chat.id,
         sticker="CAACAgIAAxkBAAEGt_ZjkD9sRrXH8R2XpQsYpRyafOfHJAACphgAAhRjYUrTgchlOAQs7ysE"
@@ -126,19 +132,17 @@ async def first_step(message: types.Message):
         await bot.send_message(chat_id=user_id, text=welcome, parse_mode="MarkDown", reply_markup=main_menu)
 
 # Заготовка для работы непосредственно с библиотекой. Недоработана
-@dp.callback_query_handler(text='base')
-async def myfunc(call):
-    funcs = cur.execute('SELECT func FROM Base WHERE func NOT NULL').fetchall()
-    funcs_list = [x[0] for x in funcs]
-    buttonb1 = InlineKeyboardButton(text='СПИСОК', callback_data='funlis')
-    buttonb2 = InlineKeyboardButton(text='ДОБАВИТЬ', callback_data='addfun')
-    base_menu = InlineKeyboardMarkup(row_width=2)
-    base_menu.insert(buttonb1)
-    base_menu.insert(buttonb2)
-    base_mes = f'Это библиотека полезных функций. Сейчас в библиотеке {len(funcs_list)} функций. ' \
-               f'Нажми "СПИСОК" чтобы посмотреть библиотеку. ' \
-               f'Нажми "ДОБАВИТЬ" чтобы добавить информацию по новой функции'
-    await bot.send_message(chat_id=call.from_user.id, text=base_mes, parse_mode="MarkDown")
+# @dp.callback_query_handler(text='base')
+# async def myfunc(call):
+#     buttonb1 = InlineKeyboardButton(text='СВИТОК©️', callback_data='funlis')
+#     buttonb2 = InlineKeyboardButton(text='ДОБАВИТЬ🧷', callback_data='addfun')
+#     base_menu = InlineKeyboardMarkup(row_width=2)
+#     base_menu.insert(buttonb1)
+#     base_menu.insert(buttonb2)
+#     base_mes = f'Это библиотека полезных функций. Сейчас в библиотеке {len(funcs_list)} функций. ' \
+#                f'Нажми "СПИСОК" чтобы посмотреть библиотеку. ' \
+#                f'Нажми "ДОБАВИТЬ" чтобы добавить информацию по новой функции'
+#     await bot.send_message(chat_id=call.from_user.id, text=base_mes, parse_mode="MarkDown", reply_markup=base_menu)
 
 # Заготовка для реакции на кнопку СПИСОК
 # Пусть пока закоментированы будут, чтобы лишних ошибок не было
@@ -154,6 +158,89 @@ async def myfunc(call):
 #     funcs = cur.execute('SELECT func FROM Base WHERE func NOT NULL').fetchall()
 #     funcs_list = [x[0] for x in funcs]
 #     await bot.send_message(chat_id=call.from_user.id, text=funcs_list, parse_mode="MarkDown", reply_markup=BaseMenu)
+
+@dp.callback_query_handler(text='educ')
+async def educ(call):
+    user_id = call.from_user.id
+    myprofile = cur.execute('SELECT progress FROM Users WHERE id=' + str(user_id)).fetchone()
+    mycheck = cur.execute('SELECT progress, type_educ, flow_num  FROM Users WHERE id=' + str(user_id)).fetchone()
+    button11 = InlineKeyboardButton(text='Изменить данные', callback_data='addeduc')
+    button12 = InlineKeyboardButton(text='Обновить прогресс', callback_data='updprog')
+    if myprofile is not None:
+        myinfo = (
+            f'*Мои данные*\n'
+            f'*Текущий прогресс*: {mycheck[0]}%\n'
+            f'*Тип обучения*: {mycheck[1]}\n'
+            f'*Когорта*: {mycheck[2]}\n'
+        )
+        profile_menu = InlineKeyboardMarkup(row_width=2)
+        profile_menu.insert(button11)
+        profile_menu.insert(button12)
+        profile_menu.insert(button4)
+        await bot.send_message(chat_id=user_id, text=myinfo, parse_mode="MarkDown", reply_markup=profile_menu)
+@dp.callback_query_handler(text='addeduc')
+async def addeduc(call):
+    user_id = call.from_user.id
+    await bot.send_message(chat_id=user_id, text='Укажи номер своей первоначальной когорты(той с который началось обучение по курсу)', parse_mode="MarkDown")
+    await Educ.EducFlow.set()
+
+
+@dp.message_handler(state=Educ.EducFlow)
+async def educ_cp(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    mes = message.text
+    if mes.isdigit():
+        if 0 < int(mes) < 56:
+            cur.execute('UPDATE Users SET flow_num == ? WHERE id == ?', (mes, user_id))
+            bd.commit()
+
+            cp_keyb = InlineKeyboardMarkup(row_width=2)
+            button1 = InlineKeyboardButton(text='Я с ЦП🤌', callback_data='cp')
+            button2 = InlineKeyboardButton(text='Сам пришёл✊🏻', callback_data='nocp')
+            cp_keyb.insert(button1)
+            cp_keyb.insert(button2)
+            await bot.send_message(
+                chat_id=user_id,
+                text='Принято. Ты по программе ЦП(Цифровые профессии) или по собственному желанию?', reply_markup=cp_keyb
+            )
+            await Educ.EducType.set()
+        else:
+            await bot.send_message(chat_id=user_id,
+                                   text='Мне нужен номер твоей первоначальной когорты в цифрах. А ты что вводишь?')
+    else:
+        await bot.send_message(chat_id=user_id, text='Я что по твоему какая-то шутка?')
+
+
+@dp.callback_query_handler(text=['cp', 'nocp'], state=Educ.EducType)
+async def educ_fin(call, state: FSMContext):
+    user_id = call.from_user.id
+    if call.data == 'cp':
+        cur.execute('UPDATE Users SET type_educ == ? WHERE id == ?', ('ЦП', user_id))
+        bd.commit()
+
+    elif call.data == 'nocp':
+        cur.execute('UPDATE Users SET type_educ == ? WHERE id == ?', ('Без ЦП', user_id))
+        bd.commit()
+    await bot.send_message(chat_id=user_id,
+                               text=f'Понятненько. Напомни, пожалуйста, свой текущий прогресс по курсу?')
+    await Educ.EducProgress.set()
+@dp.message_handler(state=Educ.EducProgress)
+async def educ_pro(message: types.Message, state: FSMContext):
+    user_id = message.from_user.id
+    mes = message.text
+
+    if mes.isdigit():
+        if 0 < int(mes) < 101:
+            cur.execute('UPDATE Users SET progress == ? WHERE id == ?', (mes, user_id))
+            bd.commit()
+            main_menu = InlineKeyboardMarkup(row_width=2)
+            main_menu.insert(button4)
+            await bot.send_message(chat_id=user_id,
+                           text=f'Всё заполнено! УРА!!!', reply_markup=main_menu)
+            await state.reset_state()
+        else:
+            await bot.send_message(chat_id=user_id,
+                                   text=f'Я жду двухзначное число(процент прохождения курса)')
 
 
 @dp.callback_query_handler(text='profile')
@@ -328,7 +415,7 @@ async def print_func(message: types.Message):
                        'Еще чего, какие глупости',
                        'Вообще-то, но в данный момент нет',
                        'Ну допустим...',
-                       'Как я тебя понимаю'
+                       'Как я тебя понимаю',
                        'Ну вот и я о том же',
                        'А можно тост?']
         forfun = random.choice(maga_phrase)
@@ -371,10 +458,10 @@ async def print_func(message: types.Message):
                      f'\nУровень коллективной благодарности: {user_rate_fin} ⭐️',
                 parse_mode="MarkDown"
             )
-    elif message_lower.find('профил') > -1:
+    elif message_lower.find('профил') > -1 and len(message_lower) <= 7:
         mycheck = cur.execute('SELECT * FROM Users WHERE id=' + str(rep_id)).fetchone()
         mention_rep = "[" + rep_name + "](tg://user?id=" + str(rep_id) + ")"
-        if mycheck[4] == None:
+        if not mycheck:
             await message.answer(
                 text=f'{mention_rep} стесняется себя и своих сокурсников\n' 
                      f'Может намекнем стесняшке, что мы тут все свои и не кусаемcя🥹?',
@@ -400,7 +487,19 @@ async def print_func(message: types.Message):
             chat_id=GROUP_DS_55_ID,
             sticker="CAACAgIAAxkBAAEGvlZjkluuNc9rcXyHz2CfH5v4Tgs6HQACtBQAAtdB-UrTW2cy7dEMQysE"
         )
-
+    elif message_lower.find('откат') > -1 and len(message_lower) == 5:
+        moders_id = [29720838, 90185253, 176814724, 1332281468, 780602845, 1595322394, 1623224307, 150360155, 877073259]
+        if message.from_user.id in moders_id:
+            user_rate_cur = cur.execute('SELECT rep FROM Users WHERE id == ?', (rep_id,)).fetchone()
+            user_rate_fin = user_rate_cur[0] - 1
+            cur.execute('UPDATE Users SET rep == ? WHERE id == ?', (user_rate_fin, rep_id))
+            bd.commit()
+            await message.answer(
+                text=f'Репутация {mention_rep} скорректирована в связи с ошибочным начислением'
+                    f'\nКорректная репутация: {user_rate_fin} ⭐️',
+                parse_mode="MarkDown"
+        )
+        await message.delete()
     elif message.reply_to_message.from_user.is_bot:
         sleep(4)
         all_phrases = ['Ну что сказать, ну что сказать, человек мой дорогой?',
@@ -772,6 +871,7 @@ async def menu(call):
     main_menu = InlineKeyboardMarkup(row_width=2)
     main_menu.insert(button1)
     main_menu.insert(button2)
+    main_menu.insert(button5)
     await bot.send_message(
         chat_id=call.from_user.id,
         text='ОСНОВНОЕ МЕНЮ',
@@ -785,7 +885,7 @@ class IsVIP(BoundFilter):
 
 mykings= []
 kingmes = []
-@dp.message_handler(text=['55', 'бот', 'секрет', 'алмаз', 'мага'])
+@dp.message_handler(text=['55', 'бот', 'секрет'])
 async def test_your_luck(message: types.Message):
     user_id = message.from_user.id
     fellows = cur.execute('SELECT id FROM Users WHERE rep > 0').fetchall()
@@ -989,8 +1089,8 @@ async def mytrue_func(call):
     base_min = cur.execute('SELECT MIN(age) FROM Users').fetchone()
     base_min_m = cur.execute('SELECT MIN(age) FROM Users WHERE sex="man"').fetchone()
     base_min_w = cur.execute('SELECT MIN(age) FROM Users WHERE sex="woman"').fetchone()
-    base_max_m = cur.execute('SELECT MIN(age) FROM Users WHERE sex="man"').fetchone()
-    base_max_w = cur.execute('SELECT MIN(age) FROM Users WHERE sex="woman"').fetchone()
+    base_max_m = cur.execute('SELECT MAX(age) FROM Users WHERE sex="man"').fetchone()
+    base_max_w = cur.execute('SELECT MAX(age) FROM Users WHERE sex="woman"').fetchone()
     mess = (f'С вашего позволения, я поделюсь *аналитикой* по чату:\n'
             f'На текущую секундочку в чате {len(base_list)} *настоящих мастеров DS*.\n'
             f'Средний возраст *элиты чата {round(user_age_avg, 2)}*\n'
@@ -1127,7 +1227,7 @@ async def check_user(message: types.Message):
             sticker=forfun)
     elif message_lower.find('пасиб') > -1:
         await message.answer(
-                text=f'Безадресная благодарность это как бесплатная зарплата. Кто-то доволен?')
+                text=f'Еще бы понять кого ты благодаришь😞')
 
     # elif message_lower.find('наши города') > -1:
     #     mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
