@@ -9,7 +9,7 @@ from aiogram.dispatcher import FSMContext
 import random
 import sqlite3
 import statistics as st
-#import pandas as pd
+# import pandas as pd
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -402,25 +402,26 @@ async def print_func(message: types.Message):
     user_name = message.from_user.first_name
     mention_rep = "[" + rep_name + "](tg://user?id=" + str(rep_id) + ")"
     if message.from_user.id == 840994663:
-        sleep(5)
-        maga_phrase = ['Ну что сказать, ну что сказать, человек мой дорогой?',
-                       'КВН заказывали?',
-                       'Да ты мне не рассказывай, ты им рассказывай',
-                       'Cмекаешь?',
-                       'Ты тут самый крутой',
-                       'Не всем дано это понять',
-                       'Может посплетничаем?',
-                       'Любишь кататься - люби и катайся',
-                       'Вообще-то да',
-                       'Еще чего, какие глупости',
-                       'Вообще-то, но в данный момент нет',
-                       'Ну допустим...',
-                       'Как я тебя понимаю',
-                       'Ну вот и я о том же',
-                       'А можно тост?']
-        forfun = random.choice(maga_phrase)
-        await message.answer(
-            text=forfun, parse_mode="MarkDown")
+        mychance = random.randint(0, 21)
+        if mychance > 9:
+            sleep(8)
+            maga_phrase = ['Наконец-то умные мысли',
+                       'Вот это я понимаю аналитика',
+                       'Вот кстати да',
+                       'Однозначно он мой герой',
+                       'Я это понимаю, ты это понимаешь',
+                       'Прислушайтесь к мудрецу',
+                       'И сразу на душе потеплело',
+                       'У матросов есть вопросы',
+                        'Интересная история',
+                           '💩',
+                           '🤝',
+                           '💋',
+                           'Если DS не идёт к Магомеду...'
+                       ]
+            forfun = random.choice(maga_phrase)
+            await message.answer(
+                text=forfun, parse_mode="MarkDown")
     elif message_lower.find('пасиб') > -1 or message_lower.find('лагодар') > -1:
         if user_id == rep_id:
             await message.answer(
@@ -430,9 +431,10 @@ async def print_func(message: types.Message):
             user_rate_cur = cur.execute('SELECT rep FROM Users WHERE id == ?', (rep_id,)).fetchone()
             # Если нет юзера в базе, то добавляем его туда сразу с рейтингом 1
             if not user_rate_cur:
-                cur.execute('INSERT INTO Users (id, rep) VALUES(?, ?)', (rep_id, 0))
-                bd.commit()
                 user_rate_fin = 1
+                cur.execute('INSERT INTO Users (id, rep) VALUES(?, ?)', (rep_id, user_rate_fin))
+                bd.commit()
+
             # если юзер есть, то обновляем его данные
             else:
                 user_rate_fin = user_rate_cur[0] + 1
@@ -461,13 +463,13 @@ async def print_func(message: types.Message):
     elif message_lower.find('профил') > -1 and len(message_lower) <= 7:
         mycheck = cur.execute('SELECT * FROM Users WHERE id=' + str(rep_id)).fetchone()
         mention_rep = "[" + rep_name + "](tg://user?id=" + str(rep_id) + ")"
-        if not mycheck:
+        if mycheck[3] is None:
             await message.answer(
                 text=f'{mention_rep} стесняется себя и своих сокурсников\n' 
                      f'Может намекнем стесняшке, что мы тут все свои и не кусаемcя🥹?',
                 parse_mode="MarkDown")
             await message.delete()
-        elif len(mycheck[7]) >= 3:
+        else:
             myinfo = (
                 f'*Профиль {rep_name}*\n'
                 f'*Позывной*: {mycheck[1]}\n'
@@ -488,7 +490,7 @@ async def print_func(message: types.Message):
             sticker="CAACAgIAAxkBAAEGvlZjkluuNc9rcXyHz2CfH5v4Tgs6HQACtBQAAtdB-UrTW2cy7dEMQysE"
         )
     elif message_lower.find('откат') > -1 and len(message_lower) == 5:
-        moders_id = [29720838, 90185253, 176814724, 1332281468, 780602845, 1595322394, 1623224307, 150360155, 877073259]
+        moders_id = [29720838, 90185253, 176814724, 1332281468, 780602845, 1595322394, 1623224307, 150360155, 877073259, 105685914]
         if message.from_user.id in moders_id:
             user_rate_cur = cur.execute('SELECT rep FROM Users WHERE id == ?', (rep_id,)).fetchone()
             user_rate_fin = user_rate_cur[0] - 1
@@ -526,7 +528,23 @@ async def print_func(message: types.Message):
                        'Я щас закончу вообще всё!',
                        'Не бери в голову',
                        'Иногда приходиться прикинуться дурачком, чтобы не выглядеть идиотом',
-                       'Hello guys, u menya vse nice']
+                       'Hello guys, u menya vse nice'
+                       'Ну что сказать, ну что сказать, человек мой дорогой?',
+                       'КВН заказывали?',
+                       'Да ты мне не рассказывай, ты им рассказывай',
+                       'Cмекаешь?',
+                       'Ты тут самый крутой',
+                       'Не всем дано это понять',
+                       'Может посплетничаем?',
+                       'Любишь кататься - люби и катайся',
+                       'Вообще-то да',
+                       'Еще чего, какие глупости',
+                       'Вообще-то, но в данный момент нет',
+                       'Ну допустим...',
+                       'Как я тебя понимаю',
+                       'Ну вот и я о том же',
+                       'А можно тост?'
+                       ]
         forfun = random.choice(all_phrases)
         await message.answer(text=forfun, parse_mode="MarkDown")
 
@@ -1230,12 +1248,12 @@ async def check_user(message: types.Message):
                 text=f'Еще бы понять кого ты благодаришь😞')
 
     # elif message_lower.find('наши города') > -1:
-    #     mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
-    #     base_list = [x[0] for x in mus_rss]
-    #     mychet = pd.Series(base_list)
-    #     mystable = mychet.value_counts().head(7)
-    #     await message.answer(
-    #         text=mystable)
+    #      mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
+    #      base_list = [x[0] for x in mus_rss]
+    #      mychet = pd.Series(base_list)
+    #      mystable = mychet.value_counts(dropna=False)
+    #      await message.answer(
+    #          text=mystable)
 
 
 
