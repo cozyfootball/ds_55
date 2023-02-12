@@ -7,7 +7,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.dispatcher import FSMContext
 import random
+# import matplotlib.pyplot as plt
 import sqlite3
+import io
 import statistics as st
 # import pandas as pd
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -93,9 +95,8 @@ async def first_step(message: types.Message):
     fellows = cur.execute('SELECT id FROM Users').fetchall()
     fellows_list = [x[0] for x in fellows]
     main_menu = InlineKeyboardMarkup(row_width=2)
-    main_menu.insert(button1)
-    main_menu.insert(button2)
-    main_menu.insert(button5)
+    main_menu.add(button1, button2, button5)
+
     await bot.send_sticker(
         chat_id=message.chat.id,
         sticker="CAACAgIAAxkBAAEGt_ZjkD9sRrXH8R2XpQsYpRyafOfHJAACphgAAhRjYUrTgchlOAQs7ysE"
@@ -174,9 +175,7 @@ async def educ(call):
             f'*Когорта*: {mycheck[2]}\n'
         )
         profile_menu = InlineKeyboardMarkup(row_width=2)
-        profile_menu.insert(button11)
-        profile_menu.insert(button12)
-        profile_menu.insert(button4)
+        profile_menu.add(button11, button12, button4)
         await bot.send_message(chat_id=user_id, text=myinfo, parse_mode="MarkDown", reply_markup=profile_menu)
 @dp.callback_query_handler(text='addeduc')
 async def addeduc(call):
@@ -193,12 +192,10 @@ async def educ_cp(message: types.Message, state: FSMContext):
         if 0 < int(mes) < 56:
             cur.execute('UPDATE Users SET flow_num == ? WHERE id == ?', (mes, user_id))
             bd.commit()
-
             cp_keyb = InlineKeyboardMarkup(row_width=2)
             button1 = InlineKeyboardButton(text='Я с ЦП🤌', callback_data='cp')
             button2 = InlineKeyboardButton(text='Сам пришёл✊🏻', callback_data='nocp')
-            cp_keyb.insert(button1)
-            cp_keyb.insert(button2)
+            cp_keyb.add(button1, button2)
             await bot.send_message(
                 chat_id=user_id,
                 text='Принято. Ты по программе ЦП(Цифровые профессии) или по собственному желанию?', reply_markup=cp_keyb
@@ -217,7 +214,6 @@ async def educ_fin(call, state: FSMContext):
     if call.data == 'cp':
         cur.execute('UPDATE Users SET type_educ == ? WHERE id == ?', ('ЦП', user_id))
         bd.commit()
-
     elif call.data == 'nocp':
         cur.execute('UPDATE Users SET type_educ == ? WHERE id == ?', ('Без ЦП', user_id))
         bd.commit()
@@ -234,7 +230,7 @@ async def educ_pro(message: types.Message, state: FSMContext):
             cur.execute('UPDATE Users SET progress == ? WHERE id == ?', (mes, user_id))
             bd.commit()
             main_menu = InlineKeyboardMarkup(row_width=2)
-            main_menu.insert(button4)
+            main_menu.add(button4)
             await bot.send_message(chat_id=user_id,
                            text=f'Всё заполнено! УРА!!!', reply_markup=main_menu)
             await state.reset_state()
@@ -261,13 +257,11 @@ async def pro_file(call):
             f'*Почему DS*: {mycheck[8]}\n'
         )
         profile_menu = InlineKeyboardMarkup(row_width=2)
-        profile_menu.insert(button11)
-        profile_menu.insert(button4)
+        profile_menu.add(button11, button4)
         await bot.send_message(chat_id=user_id, text=myinfo, parse_mode="MarkDown", reply_markup=profile_menu)
     elif myprofile is None:
         profile_menu1 = InlineKeyboardMarkup(row_width=2)
-        profile_menu1.insert(button11)
-        profile_menu1.insert(button4)
+        profile_menu1.add(button11, button4)
         await bot.send_message(
             chat_id=call.from_user.id, 
             text='Сделай доброе DS-дело, хороший человек, заполни профиль!', 
@@ -283,9 +277,7 @@ async def addprofile_new(call):
     button1 = InlineKeyboardButton(text='Мужской🧔🏻‍♂️', callback_data='iman')
     button2 = InlineKeyboardButton(text='Женский👩🏻‍🦰', callback_data='iwomen')
     button3 = InlineKeyboardButton(text='Другой🧌', callback_data='inone')
-    profile_sex.insert(button1)
-    profile_sex.insert(button2)
-    profile_sex.insert(button3)
+    profile_sex.add(button1, button2, button3)
     await bot.send_message(
         chat_id=user_id, 
         text='Чудесно, актуальная информация - клад для молодого DS-ера. '
@@ -295,7 +287,6 @@ async def addprofile_new(call):
     await Profile.ProfileSex.set()
     cur.execute('UPDATE Users SET chat_name == ? WHERE id == ?', (user_name, user_id))
     bd.commit()
-
 
 @dp.callback_query_handler(text=['iman', 'iwomen', 'inone'], state=Profile.ProfileSex)
 async def sex_age(call, state: FSMContext):
@@ -579,14 +570,12 @@ async def my_blic(call):
                   f'Моя музыка: {mypvic[13]}\n'
                   f'Мои книги: {mypvic[14]}\n*')
         victorina_menu = InlineKeyboardMarkup(row_width=2)
-        victorina_menu.insert(button11)
-        victorina_menu.insert(button4)
+        victorina_menu.add(button11, button4)
         await bot.send_message(chat_id=call.from_user.id, text=myansw, parse_mode="MarkDown", reply_markup=victorina_menu)
     elif user_id not in mypvic_list:
         user_id = call.from_user.id
         victorina_menu1 = InlineKeyboardMarkup(row_width=2)
-        victorina_menu1.insert(button11)
-        victorina_menu1.insert(button4)
+        victorina_menu1.add(button11, button4)
         await bot.send_message(chat_id=call.from_user.id, text='Ты еще не прошёл викторину. Сейчас готов?', parse_mode="MarkDown", reply_markup=victorina_menu1)
         cur.execute('INSERT INTO Blic(id, knigas) VALUES(?, ?)', (user_id, 0))
         bd.commit()
@@ -599,8 +588,7 @@ async def addvictory(call):
     vic_q1 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='🐈', callback_data='cat')
     button2 = InlineKeyboardButton(text='🐕‍🦺', callback_data='dog')
-    vic_q1.insert(button1)
-    vic_q1.insert(button2)
+    vic_q1.add(button1, button2)
     await bot.send_message(
         chat_id=user_id,
         text='Кошки или Собаки?', parse_mode="MarkDown",  reply_markup=vic_q1)
@@ -613,8 +601,7 @@ async def cat_dog(call, state: FSMContext):
     vic_q2 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='🍕', callback_data='pizza')
     button2 = InlineKeyboardButton(text='🍣', callback_data='suchi')
-    vic_q2.insert(button1)
-    vic_q2.insert(button2)
+    vic_q2.add(button1, button2)
     if call.data == 'cat':
         cur.execute('UPDATE Blic SET cat_dog == ? WHERE id == ?', ('🐈', user_id))
         bd.commit()
@@ -634,8 +621,7 @@ async def pizza_suchi(call, state: FSMContext):
     vic_q3 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='🏖', callback_data='sea')
     button2 = InlineKeyboardButton(text='🏔', callback_data='mount')
-    vic_q3.insert(button1)
-    vic_q3.insert(button2)
+    vic_q3.add(button1, button2)
     if call.data == 'pizza':
         cur.execute('UPDATE Blic SET pizza_suchi == ? WHERE id == ?', ('🍕', user_id))
         bd.commit()
@@ -656,8 +642,7 @@ async def sea_mount(call, state: FSMContext):
     vic_q4 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='🏢', callback_data='flat')
     button2 = InlineKeyboardButton(text='🏡', callback_data='house')
-    vic_q4.insert(button1)
-    vic_q4.insert(button2)
+    vic_q4.add(button1, button2)
     if call.data == 'sea':
         cur.execute('UPDATE Blic SET sea_mount == ? WHERE id == ?', ('🏖', user_id))
         bd.commit()
@@ -678,8 +663,7 @@ async def flat_house(call, state: FSMContext):
     vic_q5 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='🚂', callback_data='train')
     button2 = InlineKeyboardButton(text='✈', callback_data='plain')
-    vic_q5.insert(button1)
-    vic_q5.insert(button2)
+    vic_q5.add(button1, button2)
     if call.data == 'flat':
         cur.execute('UPDATE Blic SET flat_house == ? WHERE id == ?', ('🏢', user_id))
         bd.commit()
@@ -699,8 +683,7 @@ async def train_plain(call, state: FSMContext):
     vic_q6 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='🫖', callback_data='tea')
     button2 = InlineKeyboardButton(text='☕️', callback_data='coffe')
-    vic_q6.insert(button1)
-    vic_q6.insert(button2)
+    vic_q6.add(button1, button2)
     if call.data == 'train':
         cur.execute('UPDATE Blic SET train_plain == ? WHERE id == ?', ('🚂', user_id))
         bd.commit()
@@ -721,8 +704,7 @@ async def tea_coffe(call, state: FSMContext):
     vic_q7 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='📺', callback_data='tv')
     button2 = InlineKeyboardButton(text='🖥', callback_data='tube')
-    vic_q7.insert(button1)
-    vic_q7.insert(button2)
+    vic_q7.add(button1, button2)
     if call.data == 'tea':
         cur.execute('UPDATE Blic SET tea_coffe == ? WHERE id == ?', ('🫖', user_id))
         bd.commit()
@@ -742,8 +724,7 @@ async def tv_tube(call, state: FSMContext):
     vic_q8 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='📱ios', callback_data='and')
     button2 = InlineKeyboardButton(text='📵android', callback_data='ios')
-    vic_q8.insert(button1)
-    vic_q8.insert(button2)
+    vic_q8.add(button1, button2)
     if call.data == 'tv':
         cur.execute('UPDATE Blic SET tv_tube == ? WHERE id == ?', ('📺', user_id))
         bd.commit()
@@ -763,8 +744,7 @@ async def tatoo(call, state: FSMContext):
     vic_q9 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='✅', callback_data='yes_tatoo')
     button2 = InlineKeyboardButton(text='⛔️', callback_data='no_tatoo')
-    vic_q9.insert(button1)
-    vic_q9.insert(button2)
+    vic_q9.add(button1, button2)
     if call.data == 'and':
         cur.execute('UPDATE Blic SET andr_ios == ? WHERE id == ?', ('📱ios', user_id))
         bd.commit()
@@ -784,8 +764,7 @@ async def drive(call, state: FSMContext):
     vic_q10 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='✅', callback_data='yes_drive')
     button2 = InlineKeyboardButton(text='⛔️', callback_data='no_drive')
-    vic_q10.insert(button1)
-    vic_q10.insert(button2)
+    vic_q10.add(button1, button2)
     if call.data == 'yes_tatoo':
         cur.execute('UPDATE Blic SET tatoo == ? WHERE id == ?', ('✅', user_id))
         bd.commit()
@@ -805,8 +784,7 @@ async def parent_kid(call, state: FSMContext):
     vic_q11 = InlineKeyboardMarkup(row_width=2)
     button1 = InlineKeyboardButton(text='✅', callback_data='yes_kid')
     button2 = InlineKeyboardButton(text='⛔️', callback_data='no_kid')
-    vic_q11.insert(button1)
-    vic_q11.insert(button2)
+    vic_q11.add(button1, button2)
     if call.data == 'yes_drive':
         cur.execute('UPDATE Blic SET drive == ? WHERE id == ?', ('✅', user_id))
         bd.commit()
@@ -878,7 +856,7 @@ async def books(message: types.Message, state: FSMContext):
               f'*Моя музыка*: {mypvic[13]}\n'
               f'*Мои книги*: {mypvic[14]}\n')
     victorina_menu = InlineKeyboardMarkup(row_width=2)
-    victorina_menu.insert(button4)
+    victorina_menu.add(button4)
     await bot.send_message(chat_id=user_id,
                            text=myansw, reply_markup=victorina_menu)
 
@@ -887,9 +865,7 @@ async def books(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(text='menu')
 async def menu(call):
     main_menu = InlineKeyboardMarkup(row_width=2)
-    main_menu.insert(button1)
-    main_menu.insert(button2)
-    main_menu.insert(button5)
+    main_menu.add(button1, button2, button5)
     await bot.send_message(
         chat_id=call.from_user.id,
         text='ОСНОВНОЕ МЕНЮ',
@@ -926,14 +902,7 @@ async def test_your_luck(message: types.Message):
         button27 = InlineKeyboardButton(text='Репутация🔝', callback_data='myreput')
         button28 = InlineKeyboardButton(text='Один из нас🔝', callback_data='rrr')
         luck = InlineKeyboardMarkup(row_width=2)
-        luck.insert(button21)
-        luck.insert(button22)
-        luck.insert(button23)
-        luck.insert(button24)
-        luck.insert(button25)
-        luck.insert(button26)
-        luck.insert(button27)
-        luck.insert(button28)
+        luck.add(button21, button22, button23, button24, button25, button26, button27, button28)
         mymes = await bot.send_message(
             chat_id=message.chat.id,
             text='Пришло время поделиться истиной.🪙',
@@ -978,6 +947,14 @@ async def myfact_func(call):
     animal_q = (f'Любители шерстянкых товарищей на месте? Результаты честных выборов\n'
                 f'🐈Партия любителей кошек - *{cats_perc}%*🐈\n'
                 f'🐕\u200d🦺Партия любителей собак - *{dogs_perc}%*🐕\u200d🦺')
+    # pieLabels = ['Кошатники', 'Собачники']
+    # mychet = pd.Series(base_list)
+    # mystable = mychet.value_counts().plot.pie(autopct='%1.2f%%', colors=['#ff9999','#66b3ff'])
+    # plt.legend(pieLabels, loc=2, borderpad=0.05)
+    # plt.title('Коштаники vs Собачники')
+    # plt.savefig('/' + 'foo.png')
+    # with io.open('/' + 'foo.png', 'rb') as image:
+    #     await bot.send_photo(call.from_user.id, photo=image)
 
 
     all_e = cur.execute('SELECT pizza_suchi FROM Blic').fetchall()
@@ -1083,7 +1060,7 @@ async def myfact_func(call):
                 f'👩🏻‍🦰Партия уже родителей - *{not_kid}%*🧔🏻‍♂️')
     list_q = [pk_q, drive_q, tatoo_q, tel_q, tea_q, train_q, flath_q, seam_q, eat_q, animal_q, tv_q]
     analyst = random.choice(list_q)
-    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=analyst, parse_mode="MarkDown")
+    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=list_q, parse_mode="MarkDown")
     mykings.clear()
 
 @dp.callback_query_handler(IsVIP(), text='mycom')
@@ -1246,14 +1223,43 @@ async def check_user(message: types.Message):
     elif message_lower.find('пасиб') > -1:
         await message.answer(
                 text=f'Еще бы понять кого ты благодаришь😞')
-
+    elif message_lower.find('календар') > -1:
+            file1 = open('study_plan.jpg', 'rb')
+            await bot.send_document(message.chat.id, file1)
+    # elif message_lower.find('цп') > -1:
+    #         mus_rss = cur.execute('SELECT type_educ FROM Users WHERE type_educ NOT NULL').fetchall()
+    #         base_list = [x[0] for x in mus_rss]
+    #         mychet = pd.Series(base_list)
+    #         mystable = mychet.value_counts().plot.pie(subplots=True, figsize=(12, 6цп), autopct='%.2f', fontsize=8,
+    #                                                   labeldistance=None, pctdistance=1.25, radius=1.2)
+    #         plt.legend(fontsize=9,
+    #                    ncol=1,  # количество столбцов
+    #                    facecolor='oldlace',  # цвет области
+    #                    edgecolor='r',  # цвет крайней линии
+    #                    loc=2  # размер шрифта заголовка
+    #                    )
+    #         title = f'Общее количество {len(base_list)}'
+    #         plt.title(title)
+    #         plt.savefig('/' + 'foo.png')
+    #         with io.open('/' + 'foo.png', 'rb') as image:
+    #             await bot.send_photo(message.chat.id, photo=image)
     # elif message_lower.find('наши города') > -1:
     #      mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
     #      base_list = [x[0] for x in mus_rss]
     #      mychet = pd.Series(base_list)
-    #      mystable = mychet.value_counts(dropna=False)
-    #      await message.answer(
-    #          text=mystable)
+    #
+    #      mystable = mychet.value_counts().plot.pie(subplots=True, figsize=(15,10), autopct='%.2f', fontsize=8, labeldistance=None, pctdistance=1.25, radius=1.2)
+    #      plt.legend(fontsize = 9,
+    #       ncol = 1,    #  количество столбцов
+    #       facecolor = 'oldlace',    #  цвет области
+    #       edgecolor = 'r',    #  цвет крайней линии
+    #       loc = 2 #  размер шрифта заголовка
+    #      )
+    #
+    #      plt.savefig('/' + 'foo.png')
+    #      with io.open('/' + 'foo.png', 'rb') as image:
+    #          await bot.send_photo(message.chat.id, photo=image)
+
 
 
 
