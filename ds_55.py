@@ -7,23 +7,21 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.dispatcher.filters import BoundFilter
 from aiogram.dispatcher import FSMContext
 import random
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import sqlite3
 import io
 import statistics as st
-# import pandas as pd
+import pandas as pd
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import IsReplyFilter
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from collections import Counter
 from create_bot import bot, dp, GROUP_DS_55_ID
 
-from quiz import register_quiz_handlers
+
 
 # Базовые настройки для соединения с созданным ботом
 
-# Подключение модуля quiz
-register_quiz_handlers(dp)
+
 
 # Подключаемся/создаем базу данных
 bd = sqlite3.connect('datasciense.db')
@@ -661,7 +659,7 @@ async def flat_house(call, state: FSMContext):
     user_id = call.from_user.id
     age_quest = f'Самолет или поезд?'
     vic_q5 = InlineKeyboardMarkup(row_width=2)
-    button1 = InlineKeyboardButton(text='🚂', callback_data='train')
+    button1 = InlineKeyboardButton(text='🚝', callback_data='train')
     button2 = InlineKeyboardButton(text='✈', callback_data='plain')
     vic_q5.add(button1, button2)
     if call.data == 'flat':
@@ -685,7 +683,7 @@ async def train_plain(call, state: FSMContext):
     button2 = InlineKeyboardButton(text='☕️', callback_data='coffe')
     vic_q6.add(button1, button2)
     if call.data == 'train':
-        cur.execute('UPDATE Blic SET train_plain == ? WHERE id == ?', ('🚂', user_id))
+        cur.execute('UPDATE Blic SET train_plain == ? WHERE id == ?', ('🚝', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest, reply_markup=vic_q6)
@@ -766,13 +764,13 @@ async def drive(call, state: FSMContext):
     button2 = InlineKeyboardButton(text='⛔️', callback_data='no_drive')
     vic_q10.add(button1, button2)
     if call.data == 'yes_tatoo':
-        cur.execute('UPDATE Blic SET tatoo == ? WHERE id == ?', ('✅', user_id))
+        cur.execute('UPDATE Blic SET tatoo == ? WHERE id == ?', ('🎨', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest, reply_markup=vic_q10)
         await Blic.drive.set()
     elif call.data == 'no_tatoo':
-        cur.execute('UPDATE Blic SET tatoo == ? WHERE id == ?', ('⛔️', user_id))
+        cur.execute('UPDATE Blic SET tatoo == ? WHERE id == ?', ('🗒', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest, reply_markup=vic_q10)
@@ -786,13 +784,13 @@ async def parent_kid(call, state: FSMContext):
     button2 = InlineKeyboardButton(text='⛔️', callback_data='no_kid')
     vic_q11.add(button1, button2)
     if call.data == 'yes_drive':
-        cur.execute('UPDATE Blic SET drive == ? WHERE id == ?', ('✅', user_id))
+        cur.execute('UPDATE Blic SET drive == ? WHERE id == ?', ('🚕', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest, reply_markup=vic_q11)
         await Blic.parent_kid.set()
     elif call.data == 'no_drive':
-        cur.execute('UPDATE Blic SET drive == ? WHERE id == ?', ('⛔️', user_id))
+        cur.execute('UPDATE Blic SET drive == ? WHERE id == ?', ('🦵🏻', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest, reply_markup=vic_q11)
@@ -802,13 +800,13 @@ async def films(call, state: FSMContext):
     user_id = call.from_user.id
     age_quest = f'Порекомендуй 3 фильма/сериала сокурсникам'
     if call.data == 'yes_kid':
-        cur.execute('UPDATE Blic SET parent_kid == ? WHERE id == ?', ('✅', user_id))
+        cur.execute('UPDATE Blic SET parent_kid == ? WHERE id == ?', ('👩‍👦‍👦', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest)
         await Blic.films.set()
     elif call.data == 'no_kid':
-        cur.execute('UPDATE Blic SET parent_kid == ? WHERE id == ?', ('⛔️', user_id))
+        cur.execute('UPDATE Blic SET parent_kid == ? WHERE id == ?', ('👶🏻', user_id))
         bd.commit()
         await bot.send_message(chat_id=user_id,
                                text=age_quest)
@@ -936,132 +934,239 @@ async def myfriend_func(call):
                                 text=mess, parse_mode="MarkDown")
     mykings.clear()
 
+
+blic_dict = {'🐈': 'Кошатники',
+             '🐕\u200d🦺': 'Собачники',
+             '🍕': 'Пиццаеды',
+             '🍣': 'Сушиеды',
+             '🏖': 'Пляжники',
+             '🏔': 'Горапокорители',
+             '🏢': 'Квартирщики',
+             '🏡': 'Доможители',
+             '🚝': 'Поездолюбители',
+             '✈️': 'Самолетчики',
+             '🥃': 'Чаевники',
+             '🥛': 'Кофеинонаркоманы',
+             '📺': 'Зомобящеры',
+             '🖥️': 'Зумеры-ютуберы',
+             '📱ios': 'Айфонорабы',
+             '📵android': 'Андроидоэлита',
+             '🚕': 'Водятлы',
+             '🦵🏻': 'Пешики',
+             '👩‍👦‍👦': 'Родители',
+             '👶🏻': 'Пока сами дети',
+             '🎨': 'Живопись по телу',
+             '🗒': 'Чистота туловища'
+
+             }
 @dp.callback_query_handler(IsVIP(), text='myfact')
 async def myfact_func(call):
-    all_anim = cur.execute('SELECT cat_dog  FROM Blic').fetchall()
-    base_list = [x[0] for x in all_anim]
-    counter_animals = Counter(base_list)
-    all_animals = len(base_list)
-    cats_perc = round(counter_animals.get('🐈') / all_animals * 100, 3)
-    dogs_perc = round(counter_animals.get('🐕\u200d🦺') / all_animals * 100, 3)
-    animal_q = (f'Любители шерстянкых товарищей на месте? Результаты честных выборов\n'
-                f'🐈Партия любителей кошек - *{cats_perc}%*🐈\n'
-                f'🐕\u200d🦺Партия любителей собак - *{dogs_perc}%*🐕\u200d🦺')
-    # pieLabels = ['Кошатники', 'Собачники']
-    # mychet = pd.Series(base_list)
-    # mystable = mychet.value_counts().plot.pie(autopct='%1.2f%%', colors=['#ff9999','#66b3ff'])
-    # plt.legend(pieLabels, loc=2, borderpad=0.05)
-    # plt.title('Коштаники vs Собачники')
-    # plt.savefig('/' + 'foo.png')
-    # with io.open('/' + 'foo.png', 'rb') as image:
-    #     await bot.send_photo(call.from_user.id, photo=image)
+    sql_rand = random.randint(1, 11)
+    if sql_rand == 1:
+        group_select = cur.execute('SELECT cat_dog  FROM Blic WHERE cat_dog NOT NULL').fetchall()
+    elif sql_rand == 2:
+        group_select = cur.execute('SELECT pizza_suchi FROM Blic WHERE pizza_suchi NOT NULL').fetchall()
+    elif sql_rand == 3:
+        group_select = cur.execute('SELECT sea_mount FROM Blic WHERE sea_mount NOT NULL').fetchall()
+    elif sql_rand == 4:
+        group_select = cur.execute('SELECT flat_house FROM Blic WHERE flat_house NOT NULL').fetchall()
+    elif sql_rand == 5:
+        group_select = cur.execute('SELECT train_plain FROM Blic WHERE train_plain NOT NULL').fetchall()
+    elif sql_rand == 6:
+        group_select = cur.execute('SELECT tea_coffe FROM Blic WHERE tea_coffe NOT NULL').fetchall()
+    elif sql_rand == 7:
+        group_select = cur.execute('SELECT tv_tube FROM Blic WHERE tv_tube NOT NULL').fetchall()
+    elif sql_rand == 8:
+        group_select = cur.execute('SELECT andr_ios FROM Blic WHERE andr_ios NOT NULL').fetchall()
+    elif sql_rand == 9:
+        group_select = cur.execute('SELECT tatoo FROM Blic WHERE tatoo NOT NULL').fetchall()
+    elif sql_rand == 10:
+        group_select = cur.execute('SELECT drive FROM Blic WHERE drive NOT NULL').fetchall()
+    elif sql_rand == 11:
+        group_select = cur.execute('SELECT parent_kid FROM Blic WHERE parent_kid NOT NULL').fetchall()
+
+    base_list = [x[0] for x in group_select]
+
+    true_labels = []
+    for i in base_list:
+        if i in blic_dict:
+            true_labels.append(blic_dict[i])
+
+    # cats_perc = round(counter_animals.get('🐈') / all_animals * 100, 3)
+    # dogs_perc = round(counter_animals.get('🐕\u200d🦺') / all_animals * 100, 3)
+    # animal_q = (f'Любители шерстянкых товарищей на месте? Результаты честных выборов\n'
+    #             f'🐈Партия любителей кошек - *{cats_perc}%*🐈\n'
+    #             f'🐕\u200d🦺Партия любителей собак - *{dogs_perc}%*🐕\u200d🦺')
 
 
-    all_e = cur.execute('SELECT pizza_suchi FROM Blic').fetchall()
-    base_list_ps = [x[0] for x in all_e]
-    counter_eat = Counter(base_list_ps)
-    all_eat = len(base_list_ps)
-    pizza_perc = round(counter_eat.get('🍕') / all_eat * 100, 3)
-    suchi_perc = round(counter_eat.get('🍣') / all_eat * 100, 3)
-    eat_q = (f'Любители пощекотать вкусовые рецепторы на месте? Результаты честных выборов\n'
-                f'🍣Партия любителей есть палочками - *{pizza_perc}%🍣*\n'
-                f'🍕Партия любителей есть руками - *{suchi_perc}%🍕*')
+    mychet = pd.Series(true_labels)
+    my_fig = mychet.value_counts().reset_index()
+    true_labels = [my_fig['index'][0], my_fig['index'][1]]
+    plot_rand = random.randint(1, 6)
+    title = f'Контрольная выборка {len(base_list)}'
+    if plot_rand == 1:
+        mystable = mychet.value_counts().plot.pie(autopct='%1.0f%%',  labels=['',''])
+        plt.title(title)
+        plt.savefig('foo.png')
+        plt.close()
+        with io.open('foo.png', 'rb') as image:
+            await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif plot_rand ==2:
+        mystable = mychet.value_counts()
+        fig, ax = plt.subplots()
+        ax.bar(true_labels, mystable,  width=0.8, edgecolor="black", linewidth=0.7, color=['red', 'blue'])
+        plt.title(title)
+        plt.savefig('foo.png')
+        plt.close()
+        with io.open('foo.png', 'rb') as image:
+            await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif plot_rand ==3:
+        mystable = mychet.value_counts()
+        fig, ax = plt.subplots()
+        ax.stackplot(true_labels, mystable, color='cyan')
+        plt.title(title)
+        plt.savefig('foo.png')
+        plt.close()
+        with io.open('foo.png', 'rb') as image:
+            await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif plot_rand ==4:
+        mystable = mychet.value_counts()
+        fig, ax = plt.subplots()
+        ax.plot(true_labels, mystable, linewidth=2.0)
+        plt.title(title)
+        plt.savefig('foo.png')
+        plt.close()
+        with io.open('foo.png', 'rb') as image:
+            await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif plot_rand ==5:
+        mystable = mychet.value_counts()
+        fig, ax = plt.subplots()
+        ax.scatter(true_labels, mystable, color=['green', 'purple'], marker="X", s=999)
+        plt.title(title)
+        plt.savefig('foo.png')
+        plt.close()
+        with io.open('foo.png', 'rb') as image:
+            await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif plot_rand ==6:
+        mystable = mychet.value_counts()
+        fig, ax = plt.subplots()
+        ax.stem(true_labels, mystable)
+        plt.title(title)
+        plt.savefig('foo.png')
+        plt.close()
+        with io.open('foo.png', 'rb') as image:
+            await bot.send_photo(GROUP_DS_55_ID, photo=image)
 
-    all_seamou = cur.execute('SELECT sea_mount FROM Blic').fetchall()
-    base_list_sm = [x[0] for x in all_seamou]
-    counter_sm = Counter(base_list_sm)
-    all_seamount = len(base_list_sm)
-    sea_perc = round(counter_sm.get('🏖') / all_seamount * 100, 3)
-    mount_perc = round(counter_sm.get('🏔') / all_seamount * 100, 3)
-    seam_q = (f'Любители хорошо отдохнуть? Результаты честных выборов\n'
-                f'🏖Партия любителей морского воздуха - *{sea_perc}%*🏖\n'
-                f'🏔Партия любителей горного воздуха - *{mount_perc}%*🏔')
-
-    all_flh = cur.execute('SELECT flat_house FROM Blic').fetchall()
-    base_list_fh = [x[0] for x in all_flh]
-    counter_fh = Counter(base_list_fh)
-    all_flathouse = len(base_list_fh)
-    home_perc = round(counter_fh.get('🏡') / all_flathouse * 100, 3)
-    flat_perc = round(counter_fh.get('🏢') / all_flathouse * 100, 3)
-    flath_q = (f'Любители крыши дома своего на месте? Результаты честных выборов\n'
-                f'🏢Партия многоквартирной суеты - *{flat_perc}%🏢*\n'
-                f'🏡Партия загородного домашнего уюта - *{home_perc}%*🏡')
-
-    all_tp = cur.execute('SELECT train_plain FROM Blic').fetchall()
-    base_list_tp = [x[0] for x in all_tp]
-    counter_tp = Counter(base_list_tp)
-    all_trainplain = len(base_list_tp)
-    plain_perc = round(counter_tp.get('✈️') / all_trainplain * 100, 3)
-    train_perc = round(counter_tp.get('🚂') / all_trainplain * 100, 3)
-    train_q = (f'Любители путешествовать на месте? Результаты честных выборов\n'
-                f'️🚂Партия поездной романтики - *{train_perc}%*🚂\n'
-                f'✈️Партия рыбы или мяса - *{plain_perc}%*✈️')
-
-    all_tc = cur.execute('SELECT tea_coffe FROM Blic').fetchall()
-    base_list_tc = [x[0] for x in all_tc]
-    counter_tc = Counter(base_list_tc)
-    all_tea_coffe = len(base_list_tc)
-    tea_perc = round(counter_tc.get('🫖') / all_tea_coffe * 100, 3)
-    coffe_perc = round((all_tea_coffe - counter_tc.get('🫖')) / all_tea_coffe * 100, 3)
-    tea_q = (f'Любители теплых напитков на месте? Результаты честных выборов\n'
-                f'🫖Партия чайного спокойствия - *{tea_perc}%*🫖\n'
-                f'☕️Партия кофейной суеты - *{coffe_perc}%*☕️')
-
-
-    all_tt = cur.execute('SELECT tv_tube FROM Blic').fetchall()
-    base_list_tt = [x[0] for x in all_tt]
-    counter_tt = Counter(base_list_tt)
-    all_tv_tube = len(base_list_tt)
-    tube_perc = round((all_tv_tube-counter_tt['📺']) / all_tv_tube * 100, 3)
-    tv_perc = round(counter_tt['📺'] / all_tv_tube * 100, 3)
-    tv_q = (f'Любители повтыкать в экран на месте? Результаты честных выборов\n'
-                f'📺Партия ТВ - староверов  - *{tv_perc}%*📺\n'
-                f'🖥️Партия блогеров и подписок - *{tube_perc}%*🖥️')
-
-    
-    all_ai = cur.execute('SELECT andr_ios FROM Blic').fetchall()
-    base_list_ai = [x[0] for x in all_ai]
-    counter_ai = Counter(base_list_ai)
-    all_andr = len(base_list_ai)
-    aios_perc = round(counter_ai['📱ios'] / all_andr * 100, 3)
-    andr_perc = round((all_andr - counter_ai['📱ios']) / all_andr * 100, 3)
-    tel_q = (f'Любители потыкать в экран на месте? Результаты честных выборов\n'
-                f'Партия яблочников - *{aios_perc}%*📱ios\n'
-                f'Партия андроидов - *{andr_perc}%*📵android')
-
-    all_tat = cur.execute('SELECT tatoo FROM Blic').fetchall()
-    base_list_tat = [x[0] for x in all_tat]
-    counter_tat = Counter(base_list_tat)
-    all_tatoo = len(base_list_tat)
-    yest_perc = round(counter_tat.get('✅') / all_tatoo * 100, 3)
-    not_perc = round(counter_tat.get('⛔️') / all_tatoo * 100, 3)
-    tatoo_q = (f'Любите живопись по телу? Результаты честных выборов\n'
-                f'🎨Партия яркой внешности - *{yest_perc}%🎨*\n'
-                f'🧽Партия чистого тела - *{not_perc}%🧽*')
-
-    all_dr = cur.execute('SELECT drive FROM Blic').fetchall()
-    base_list_dr = [x[0] for x in all_dr]
-    counter_dr = Counter(base_list_dr)
-    all_drive = len(base_list_dr)
-    yesdr_perc = round(counter_dr.get('✅') / all_drive * 100, 3)
-    notdr_perc = round(counter_dr.get('⛔️') / all_drive * 100, 3)
-    drive_q = (f'Водитель или пешеход? Результаты честных выборов\n'
-                f'🛻Партия водителей - *{yesdr_perc}%*🚗\n'
-                f'🚶‍♀️Партия исключительно пешеходов - *{notdr_perc}%*🚶‍♂️')
-
-    all_pk= cur.execute('SELECT parent_kid FROM Blic').fetchall()
-    base_list_pk = [x[0] for x in all_pk]
-    counter_pk = Counter(base_list_pk)
-    all_parentkid = len(base_list_pk)
-    yest_kid = round(counter_pk.get('✅') / all_drive* 100, 3)
-    not_kid = round(counter_pk.get('⛔️') / all_drive * 100, 3)
-    pk_q = (f'Имеешь родительские обязанности или рановато? Результаты честных выборов\n'
-                f'👶🏻Партия пока еще детей - *{yest_kid}%*👧🏻\n'
-                f'👩🏻‍🦰Партия уже родителей - *{not_kid}%*🧔🏻‍♂️')
-    list_q = [pk_q, drive_q, tatoo_q, tel_q, tea_q, train_q, flath_q, seam_q, eat_q, animal_q, tv_q]
-    analyst = random.choice(list_q)
-    await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=list_q, parse_mode="MarkDown")
-    mykings.clear()
+    true_labels=[]
+    bd.commit()
+    # #
+    #
+    #
+    #
+    # base_list_ps = [x[0] for x in all_e]
+    # counter_eat = Counter(base_list_ps)
+    # all_eat = len(base_list_ps)
+    # pizza_perc = round(counter_eat.get('🍕') / all_eat * 100, 3)
+    # suchi_perc = round(counter_eat.get('🍣') / all_eat * 100, 3)
+    # eat_q = (f'Любители пощекотать вкусовые рецепторы на месте? Результаты честных выборов\n'
+    #             f'🍣Партия любителей есть палочками - *{pizza_perc}%🍣*\n'
+    #             f'🍕Партия любителей есть руками - *{suchi_perc}%🍕*')
+    #
+    #
+    # base_list_sm = [x[0] for x in all_seamou]
+    # counter_sm = Counter(base_list_sm)
+    # all_seamount = len(base_list_sm)
+    # sea_perc = round(counter_sm.get('🏖') / all_seamount * 100, 3)
+    # mount_perc = round(counter_sm.get('🏔') / all_seamount * 100, 3)
+    # seam_q = (f'Любители хорошо отдохнуть? Результаты честных выборов\n'
+    #             f'🏖Партия любителей морского воздуха - *{sea_perc}%*🏖\n'
+    #             f'🏔Партия любителей горного воздуха - *{mount_perc}%*🏔')
+    #
+    #
+    # base_list_fh = [x[0] for x in all_flh]
+    # counter_fh = Counter(base_list_fh)
+    # all_flathouse = len(base_list_fh)
+    # home_perc = round(counter_fh.get('🏡') / all_flathouse * 100, 3)
+    # flat_perc = round(counter_fh.get('🏢') / all_flathouse * 100, 3)
+    # flath_q = (f'Любители крыши дома своего на месте? Результаты честных выборов\n'
+    #             f'🏢Партия многоквартирной суеты - *{flat_perc}%🏢*\n'
+    #             f'🏡Партия загородного домашнего уюта - *{home_perc}%*🏡')
+    #
+    #
+    # base_list_tp = [x[0] for x in all_tp]
+    # counter_tp = Counter(base_list_tp)
+    # all_trainplain = len(base_list_tp)
+    # plain_perc = round(counter_tp.get('✈️') / all_trainplain * 100, 3)
+    # train_perc = round(counter_tp.get('🚂') / all_trainplain * 100, 3)
+    # train_q = (f'Любители путешествовать на месте? Результаты честных выборов\n'
+    #             f'️🚂Партия поездной романтики - *{train_perc}%*🚂\n'
+    #             f'✈️Партия рыбы или мяса - *{plain_perc}%*✈️')
+    #
+    #
+    # base_list_tc = [x[0] for x in all_tc]
+    # counter_tc = Counter(base_list_tc)
+    # all_tea_coffe = len(base_list_tc)
+    # tea_perc = round(counter_tc.get('🫖') / all_tea_coffe * 100, 3)
+    # coffe_perc = round((all_tea_coffe - counter_tc.get('🫖')) / all_tea_coffe * 100, 3)
+    # tea_q = (f'Любители теплых напитков на месте? Результаты честных выборов\n'
+    #             f'🫖Партия чайного спокойствия - *{tea_perc}%*🫖\n'
+    #             f'☕️Партия кофейной суеты - *{coffe_perc}%*☕️')
+    #
+    #'
+    #
+    # base_list_tt = [x[0] for x in all_tt]
+    # counter_tt = Counter(base_list_tt)
+    # all_tv_tube = len(base_list_tt)
+    # tube_perc = round((all_tv_tube-counter_tt['📺']) / all_tv_tube * 100, 3)
+    # tv_perc = round(counter_tt['📺'] / all_tv_tube * 100, 3)
+    # tv_q = (f'Любители повтыкать в экран на месте? Результаты честных выборов\n'
+    #             f'📺Партия ТВ - староверов  - *{tv_perc}%*📺\n'
+    #             f'🖥️Партия блогеров и подписок - *{tube_perc}%*🖥️')
+    #
+    #
+    #
+    # base_list_ai = [x[0] for x in all_ai]
+    # counter_ai = Counter(base_list_ai)
+    # all_andr = len(base_list_ai)
+    # aios_perc = round(counter_ai['📱ios'] / all_andr * 100, 3)
+    # andr_perc = round((all_andr - counter_ai['📱ios']) / all_andr * 100, 3)
+    # tel_q = (f'Любители потыкать в экран на месте? Результаты честных выборов\n'
+    #             f'Партия яблочников - *{aios_perc}%*📱ios\n'
+    #             f'Партия андроидов - *{andr_perc}%*📵android')
+    #
+    #
+    # base_list_tat = [x[0] for x in all_tat]
+    # counter_tat = Counter(base_list_tat)
+    # all_tatoo = len(base_list_tat)
+    # yest_perc = round(counter_tat.get('✅') / all_tatoo * 100, 3)
+    # not_perc = round(counter_tat.get('⛔️') / all_tatoo * 100, 3)
+    # tatoo_q = (f'Любите живопись по телу? Результаты честных выборов\n'
+    #             f'🎨Партия яркой внешности - *{yest_perc}%🎨*\n'
+    #             f'🧽Партия чистого тела - *{not_perc}%🧽*')
+    #
+    #
+    # base_list_dr = [x[0] for x in all_dr]
+    # counter_dr = Counter(base_list_dr)
+    # all_drive = len(base_list_dr)
+    # yesdr_perc = round(counter_dr.get('✅') / all_drive * 100, 3)
+    # notdr_perc = round(counter_dr.get('⛔️') / all_drive * 100, 3)
+    # drive_q = (f'Водитель или пешеход? Результаты честных выборов\n'
+    #             f'🛻Партия водителей - *{yesdr_perc}%*🚗\n'
+    #             f'🚶‍♀️Партия исключительно пешеходов - *{notdr_perc}%*🚶‍♂️')
+    #
+    #
+    # base_list_pk = [x[0] for x in all_pk]
+    # counter_pk = Counter(base_list_pk)
+    # all_parentkid = len(base_list_pk)
+    # yest_kid = round(counter_pk.get('✅') / all_drive* 100, 3)
+    # not_kid = round(counter_pk.get('⛔️') / all_drive * 100, 3)
+    # pk_q = (f'Имеешь родительские обязанности или рановато? Результаты честных выборов\n'
+    #             f'👶🏻Партия пока еще детей - *{yest_kid}%*👧🏻\n'
+    #             f'👩🏻‍🦰Партия уже родителей - *{not_kid}%*🧔🏻‍♂️')
+    # list_q = [pk_q, drive_q, tatoo_q, tel_q, tea_q, train_q, flath_q, seam_q, eat_q, animal_q, tv_q]
+    # analyst = random.choice(list_q)
+    # await bot.edit_message_text(chat_id=call.message.chat.id, message_id=kingmes[-1], text=list_q, parse_mode="MarkDown")
+    # mykings.clear()
 
 @dp.callback_query_handler(IsVIP(), text='mycom')
 async def mytrue_func(call):
@@ -1226,42 +1331,42 @@ async def check_user(message: types.Message):
     elif message_lower.find('календар') > -1:
             file1 = open('study_plan.jpg', 'rb')
             await bot.send_document(message.chat.id, file1)
-    # elif message_lower.find('цп') > -1:
-    #         mus_rss = cur.execute('SELECT type_educ FROM Users WHERE type_educ NOT NULL').fetchall()
-    #         base_list = [x[0] for x in mus_rss]
-    #         mychet = pd.Series(base_list)
-    #         mystable = mychet.value_counts().plot.pie(subplots=True, figsize=(12, 6цп), autopct='%.2f', fontsize=8,
-    #                                                   labeldistance=None, pctdistance=1.25, radius=1.2)
-    #         plt.legend(fontsize=9,
-    #                    ncol=1,  # количество столбцов
-    #                    facecolor='oldlace',  # цвет области
-    #                    edgecolor='r',  # цвет крайней линии
-    #                    loc=2  # размер шрифта заголовка
-    #                    )
-    #         title = f'Общее количество {len(base_list)}'
-    #         plt.title(title)
-    #         plt.savefig('/' + 'foo.png')
-    #         with io.open('/' + 'foo.png', 'rb') as image:
-    #             await bot.send_photo(message.chat.id, photo=image)
-    # elif message_lower.find('наши города') > -1:
-    #      mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
-    #      base_list = [x[0] for x in mus_rss]
-    #      mychet = pd.Series(base_list)
-    #
-    #      mystable = mychet.value_counts().plot.pie(subplots=True, figsize=(15,10), autopct='%.2f', fontsize=8, labeldistance=None, pctdistance=1.25, radius=1.2)
-    #      plt.legend(fontsize = 9,
-    #       ncol = 1,    #  количество столбцов
-    #       facecolor = 'oldlace',    #  цвет области
-    #       edgecolor = 'r',    #  цвет крайней линии
-    #       loc = 2 #  размер шрифта заголовка
-    #      )
-    #
-    #      plt.savefig('/' + 'foo.png')
-    #      with io.open('/' + 'foo.png', 'rb') as image:
-    #          await bot.send_photo(message.chat.id, photo=image)
+    elif message_lower.find('цп') > -1:
+            mus_rss = cur.execute('SELECT type_educ FROM Users WHERE type_educ NOT NULL').fetchall()
+            base_list = [x[0] for x in mus_rss]
+            mychet = pd.Series(base_list)
+            mystable = mychet.value_counts().plot.bar(color=['pink', 'black'])
+            # fig, ax = plt.subplots()
+            # ax.bar(mystable, height=1, width=0.8, edgecolor="black", linewidth=0.7, color=['red', 'blue'])
+            plt.title('Срез по ЦП')
+            plt.savefig('foo.png')
+            plt.close()
+            with io.open('foo.png', 'rb') as image:
+                await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif message_lower.find('поток') > -1:
+            mus_rss = cur.execute('SELECT flow_num FROM Users WHERE flow_num NOT NULL').fetchall()
+            base_list = [x[0] for x in mus_rss]
+            mychet = pd.Series(base_list)
+            mystable = mychet.value_counts().plot.bar(color=['black', 'red', 'green', 'blue', 'cyan'])
+            # fig, ax = plt.subplots()
+            # ax.bar(mystable, height=1, width=0.8, edgecolor="black", linewidth=0.7, color=['red', 'blue'])
+            plt.title('Наши первоначальные когорты')
+            plt.savefig('foo.png')
+            plt.close()
+            with io.open('foo.png', 'rb') as image:
+                await bot.send_photo(GROUP_DS_55_ID, photo=image)
+    elif message_lower.find('наши города') > -1:
+         mus_rss = cur.execute('SELECT city FROM Users WHERE city NOT NULL').fetchall()
+         base_list = [x[0] for x in mus_rss]
+         mychet = pd.Series(base_list)
 
+         mychet.value_counts().plot.pie(figsize=(15,10), autopct='%.2f', fontsize=8, pctdistance=1.25, radius=1.2)
 
-
+         plt.title('Наша география')
+         plt.savefig('foo.png')
+         plt.close()
+         with io.open('foo.png', 'rb') as image:
+             await bot.send_photo(GROUP_DS_55_ID, photo=image)
 
 # Техническая часть, чтобы бот работал не уходил в игнор от большого количества запросов.
 if __name__ == '__main__':
